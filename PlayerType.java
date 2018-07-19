@@ -1,7 +1,7 @@
 package project4;
 
 /**********************************************************************
- * Enumerated class that defines the different types of gaming systems.
+ * Enumerated class that defines the different types of gaming systems
  * 
  * @author Jarod Collier and Ben Burger
  * @version 7/16/18

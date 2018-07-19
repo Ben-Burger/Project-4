@@ -22,7 +22,6 @@ public class Game extends DVD {
 	/******************************************************************
 	 * Creates a game object with with specific parameters for bought,
 	 * dueback, title, name of the renter, and type of player
-	 * 
 	 * @param bought - the date on which the game was bought
 	 * @param dueBack - the date on which the game is due back
 	 * @param title - the title of the game

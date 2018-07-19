@@ -38,7 +38,6 @@ public class DVD implements Serializable {
 	/******************************************************************
 	 * Creates a DVD object with with specific parameters for bought,
 	 * dueback, title, and name
-	 * 
 	 * @param bought - the date on which the DVD was bought
 	 * @param dueBack - the date on which the DVD is due back
 	 * @param title - the title of the DVD 

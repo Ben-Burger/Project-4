@@ -104,45 +104,55 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		setJMenuBar(menus);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		//adding list to the GUI1024
+		//adding the list to the GUI and scrolling pane
 		list = new RentalStore();
 		JListArea = new JList(list);
 		scrollList = new JScrollPane(JListArea);
 		add(scrollList);
 		setVisible(true);
-		setSize(650, 200);
+		setSize(800, 600);
 
 	}
 
+	/******************************************************************
+	 * Tells the GUI what to do when an action happens
+	 * @param e - ActionEvent used to indicate action happened
+	 * @throws IndexOutOfBoundsException when index is out of bounds
+	 *****************************************************************/
 	public void actionPerformed(ActionEvent e) {
 
 		Object comp = e.getSource();
 
+		// Opening a file 
 		if (openSerItem == comp || openTextItem == comp) {
 			JFileChooser chooser = new JFileChooser();
 			int status = chooser.showOpenDialog(null);
 			if (status == JFileChooser.APPROVE_OPTION) {
-				String filename = chooser.getSelectedFile().getAbsolutePath();
+				String filename = chooser.getSelectedFile().
+						getAbsolutePath();
 				if (openSerItem == comp)
 					list.loadFromSerializable(filename);
 			}
 		}
 
+		// Saving a file
 		if (saveSerItem == comp || saveTextItem == comp) {
 			JFileChooser chooser = new JFileChooser();
 			int status = chooser.showSaveDialog(null);
 			if (status == JFileChooser.APPROVE_OPTION) {
-				String filename = chooser.getSelectedFile().getAbsolutePath();
+				String filename = chooser.getSelectedFile().
+						getAbsolutePath();
 				if (saveSerItem == e.getSource())
 					list.saveAsSerializable(filename);
 			}
 		}
 
-		// MenuBar options
+		// MenuBar option of exiting
 		if (e.getSource() == exitItem) {
 			System.exit(1);
 		}
 
+		// Renting a DVD
 		if (e.getSource() == rentDVD) {
 			DVD dvd = new DVD();
 			RentDVDDialog dialog = new RentDVDDialog(this, dvd);
@@ -150,6 +160,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 				list.add(dvd);
 		}
 
+		// Renting a Game
 		if (e.getSource() == rentGame) {
 			Game game = new Game();
 			RentGameDialog dialog = new RentGameDialog(this, game);
@@ -157,10 +168,10 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 				list.add(game);
 		} 
 
+		// Returning a DVD or game
 		if (e.getSource() == returnItem) {
 
 			int index = JListArea.getSelectedIndex();
-
 
 			try {
 
@@ -170,17 +181,23 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 				else {
 
 					GregorianCalendar date = new GregorianCalendar();
-					String inputDate = JOptionPane.showInputDialog("Enter return date: ");
-					SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+					String inputDate = JOptionPane.
+							showInputDialog("Enter return date: ");
+					SimpleDateFormat df = new 
+							SimpleDateFormat("MM/dd/yyyy");
 
 					Date newDate = df.parse(inputDate);
 					date.setTime(newDate);
-
 					DVD unit = list.get(index);
-					JOptionPane.showMessageDialog(null, "Thanks " + unit.getNameOfRenter() +
-							" for returning " + unit.getTitle() + ", you owe: " + unit.getCost(date) +
-							" dollars");
-					list.remove(unit);
+					
+					//Checks if return date is before bought date
+					if (date.compareTo(unit.getBought()) > 0) {
+						JOptionPane.showMessageDialog(null, "Thanks " + unit.getNameOfRenter() + " for returning "
+								+ unit.getTitle() + ", you owe: " + unit.getCost(date) + " dollars");
+						list.remove(unit);
+					}
+					else
+						throw new Exception();
 				}
 			}
 			catch (IndexOutOfBoundsException ie) {
@@ -197,38 +214,61 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 			}			
 		}
 
+		// Checks what items will be late at specific date
 		if (e.getSource() == showLateItem) {
 
 		
 			try {
 				GregorianCalendar date = new GregorianCalendar();
-				String inputDate = JOptionPane.showInputDialog("Enter date: ");
-				SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+				String inputDate = JOptionPane.
+						showInputDialog("Enter date: ");
+				SimpleDateFormat df =
+						new SimpleDateFormat("MM/dd/yyyy");
 
 				Date newDate = df.parse(inputDate);
 				date.setTime(newDate);
 				
+				// Makes sure that dates are formatted correctly
+				String[] late = inputDate.split("/");
+				
+				DVD lateDVD = new DVD();
+
+				String[] greg = lateDVD.convertDateToString(date).split("/");
+
+				if (!late[0].equals(greg[0]) || !late[2].equals(greg[2]))
+					throw new Exception();
+				
 				int lateListIndex = 0;
 				String[] lateList = new String[list.getSize()];
 				
+				
+				// Compares dates to check how late an item would be
 				for (int i = 0; i < list.getSize(); i++) {
-					int milliRental = (int) list.get(i).getDueBack().getTimeInMillis();
-					int daysRental = milliRental / (24 * 60 * 60 * 1000);
-					int milliDate = (int) date.getTimeInMillis();
-					int daysDate = milliDate / (24 * 60 * 60 * 1000);
+					long milliRental =  list.get(i).getDueBack().
+							getTimeInMillis();
+					long daysRental = milliRental / 
+							(24 * 60 * 60 * 1000);
+					long milliDate =  date.
+							getTimeInMillis();
+					long daysDate = milliDate / (24 * 60 * 60 * 1000);
 					if (daysDate - daysRental > 0) {
-						lateList [lateListIndex] = list.get(i).toString() + ",  Days late: " + (daysDate - daysRental);
+						lateList [lateListIndex] = list.get(i).
+								toString() + ",  Days late: " +
+								(daysDate - daysRental);
 						lateListIndex++;
 					}
 				}
 				if (lateList.length > 0)
-					JOptionPane.showMessageDialog(null, lateList, "Late List", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(null, lateList,
+							"Late List", JOptionPane.
+							INFORMATION_MESSAGE);
 				else
-					JOptionPane.showMessageDialog(null, "There are no late rentals");
+					JOptionPane.showMessageDialog(null, 
+							"There are no late rentals");
 			}
 			catch (ParseException pe) {
 				JOptionPane.showMessageDialog(null, "Please enter" + 
-						" valid damat");
+						" valid date");
 			}
 			catch (Exception ex ) {
 				JOptionPane.showMessageDialog(null, "Please enter" + 
@@ -237,6 +277,10 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		}
 	}
 
+	/******************************************************************
+	 * Main method to execute the Rental Store program
+	 * @param args - default parameters for main method
+	 *****************************************************************/
 	public static void main(String[] args) {
 		new RentalStoreGUI();
 	}
