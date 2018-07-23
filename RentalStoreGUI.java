@@ -1,6 +1,8 @@
 package project4;
 
 import javax.swing.*;
+import javax.swing.table.TableColumnModel;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
@@ -24,34 +26,34 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 
 	/** File menu in the menu bar */
 	private JMenu fileMenu;
-	
+
 	/** Action menu in the menu bar */
 	private JMenu actionMenu;
 
 	/** Opens save file menu item */
 	private JMenuItem openSerItem;
-	
+
 	/** Menu item to exit program */
 	private JMenuItem exitItem;
-	
+
 	/** Menu item to save files */
 	private JMenuItem saveSerItem;
-	
+
 	/** Menu item to open a text item */
 	private JMenuItem openTextItem;
-	
+
 	/** Menu item to save text item */
 	private JMenuItem saveTextItem;
-	
+
 	/** Menu item to rent a DVD */
 	private JMenuItem rentDVD;
-	
+
 	/** Menu item to rent a game */
 	private JMenuItem rentGame;
-	
+
 	/** Menu item to return a game or DVD */
 	private JMenuItem returnItem;
-	
+
 	/** menu item in each of the menus */
 	private JMenuItem showLateItem;
 
@@ -59,7 +61,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 	private RentalStore list;
 
 	/** Holds JListArea */
-	private JList JListArea;
+	private JTable JListArea;
 
 	/** Scroll pane */
 	private JScrollPane scrollList;
@@ -113,7 +115,9 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 
 		//adding the list to the GUI and scrolling pane
 		list = new RentalStore();
-		JListArea = new JList(list);
+
+
+		JListArea = new JTable(list);
 		scrollList = new JScrollPane(JListArea);
 		add(scrollList);
 		setVisible(true);
@@ -204,7 +208,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		// Returning a DVD or game
 		if (e.getSource() == returnItem) {
 
-			int index = JListArea.getSelectedIndex();
+			int index = JListArea.getSelectedRow();
 
 			try {
 
@@ -222,7 +226,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 					Date newDate = df.parse(inputDate);
 					date.setTime(newDate);
 					DVD unit = list.get(index);
-					
+
 					//Checks if return date is before bought date
 					if (date.compareTo(unit.getBought()) > 0) {
 						JOptionPane.showMessageDialog(null, "Thanks " + unit.getNameOfRenter() + " for returning "
@@ -250,7 +254,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		// Checks what items will be late at specific date
 		if (e.getSource() == showLateItem) {
 
-		
+
 			try {
 				GregorianCalendar date = new GregorianCalendar();
 				String inputDate = JOptionPane.
@@ -260,21 +264,21 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 
 				Date newDate = df.parse(inputDate);
 				date.setTime(newDate);
-				
+
 				// Makes sure that dates are formatted correctly
 				String[] late = inputDate.split("/");
-				
+
 				DVD lateDVD = new DVD();
 
 				String[] greg = lateDVD.convertDateToString(date).split("/");
 
 				if (!late[0].equals(greg[0]) || !late[2].equals(greg[2]))
 					throw new Exception();
-				
+
 				int lateListIndex = 0;
 				String[] lateList = new String[list.getSize()];
-				
-				
+
+
 				// Compares dates to check how late an item would be
 				for (int i = 0; i < list.getSize(); i++) {
 					long milliRental =  list.get(i).getDueBack().
