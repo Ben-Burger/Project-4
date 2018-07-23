@@ -33,8 +33,8 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	 * Remove all items
 	 *****************************************************************/
 	public void clear() {
-
-		System.out.println("Hi");
+		top = null;
+		tail = null;
 	}
 
 	/******************************************************************
