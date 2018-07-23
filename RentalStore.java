@@ -16,7 +16,7 @@ import java.util.*;
  * @author Jarod Collier and Ben Burger
  * @version 7/16/18
  *********************************************************************/
-public class RentalStore extends DefaultTableModel {
+public class RentalStore extends AbstractTableModel {
 
 	/** Used to save the rental store as a binary file */
 	private static final long serialVersionUID = 1L;
@@ -53,24 +53,8 @@ public class RentalStore extends DefaultTableModel {
 	 *****************************************************************/
 	public void add (DVD dvd) {
 		listDVDs.add(dvd);
-
-		Object[] rowData = new Object[5];
-
-		SimpleDateFormat df = new 
-				SimpleDateFormat("MM/dd/yyyy");
-
-
-		rowData[0] = dvd.getNameOfRenter();
-		rowData[1] = dvd.getTitle();
-		rowData[2] = df.format(dvd.getBought().getTime());
-		rowData[3] = df.format(dvd.getDueBack().getTime());
-		rowData[4] = "";
-		super.addRow(rowData);
-
-
-		//		fireIntervalAdded(this, 0, listDVDs.size());
+		fireTableDataChanged();
 	}
-
 
 
 
@@ -79,11 +63,10 @@ public class RentalStore extends DefaultTableModel {
 	 * @param dvd - the DVD object being removed from the list
 	 *****************************************************************/
 	public void remove (DVD dvd) {
-		int i = listDVDs.indexOf(dvd);
 		listDVDs.remove(dvd);
-		super.removeRow(i);
-		//		super.removeRow(this.get); 
 		//		fireIntervalRemoved(this, 0, listDVDs.size());
+		fireTableDataChanged();
+
 	}
 
 
@@ -160,35 +143,35 @@ public class RentalStore extends DefaultTableModel {
 
 
 	public int getColumnCount() {
-
 		return 5;
 	}
 
+	public int getRowCount() {
+		return listDVDs.size();
+	}
 
+	public Object getValueAt (int rowIndex, int colIndex) {
+		DVD dvd = listDVDs.get(rowIndex);
 
-	//		public int getRowCount() {
-	//			this.fireTableStructureChanged();
-	//			return listDVDs.size();
-	//		}
+		SimpleDateFormat df = new 
+				SimpleDateFormat("MM/dd/yyyy");
 
+		if (colIndex == 0)
+			return dvd.getNameOfRenter();
+		if (colIndex == 1)
+			return dvd.getTitle();
+		if (colIndex == 2)
+			return df.format(dvd.getBought().getTime());
+		if (colIndex == 3)
+			return df.format(dvd.getDueBack().getTime());
+		if (colIndex == 4)
+			if (dvd.getClass() == Game.class)
+				return ((Game) dvd).getPlayer();
 
-	//	public Object getValueAt(int arg0, int arg1) {
-	//		if (arg1 == 0)
-	//			return listDVDs.get(arg0).getNameOfRenter();
-	//		if (arg1 == 1)
-	//			return listDVDs.get(arg0).getTitle();
-	//		if (arg1 == 2)
-	//			return listDVDs.get(arg0).getBought();
-	//		if (arg1 == 3)
-	//			return listDVDs.get(arg0).getDueBack();
-	//		if (arg1 == 4)
-	//			return "";
-	//		return null;
-	//	}
+		return null;
+		
+		
+	}
 
-//@Override
-//public Object getValueAt (int rowIndex, int colIndex) {
-//	DVD dvd = this.getElementAt(rowIndex);
-//}
-
+	
 }

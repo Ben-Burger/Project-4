@@ -60,8 +60,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 	/** Holds the list engine */
 	private RentalStore list;
 
-	/** Holds JListArea */
-	private JTable JListArea;
+	/** Holds JListTable */
+	private JTable JListTable;
 
 	/** Scroll pane */
 	private JScrollPane scrollList;
@@ -122,9 +122,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		//adding the list to the GUI and scrolling pane
 		list = new RentalStore();
 
-
-		JListArea = new JTable(list);
-		scrollList = new JScrollPane(JListArea);
+		JListTable = new JTable(list);
+		scrollList = new JScrollPane(JListTable);
 		add(scrollList);
 		setVisible(true);
 		setSize(800, 600);
@@ -214,7 +213,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		// Returning a DVD or game
 		if (e.getSource() == returnItem) {
 
-			int index = JListArea.getSelectedRow();
+			int index = JListTable.getSelectedRow();
 
 			try {
 
