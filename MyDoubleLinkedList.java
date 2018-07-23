@@ -34,6 +34,7 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	 *****************************************************************/
 	public void clear() {
 
+		System.out.println("Hi");
 	}
 
 	/******************************************************************
