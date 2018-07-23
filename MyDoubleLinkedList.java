@@ -35,6 +35,8 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	public void clear() {
 		top = null;
 		tail = null;
+		 
+		// hi ben
 	}
 
 	/******************************************************************
