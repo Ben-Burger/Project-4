@@ -8,9 +8,7 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private DNode<T> top;
-	private DNode<T> tail;
-
-	private int size; //FIXME meant to be public or private??? 
+	private DNode<T> tail; 
 
 	public MyDoubleLinkedList () {
 		top = null;
@@ -18,16 +16,16 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	}
 
 	public int getSize() {
-		
-		size = 0;
-		
+
+		int size = 0;
+
 		DNode<T> currentNode = top;
-		
+
 		while (currentNode != null) {
 			size++;
 			currentNode = currentNode.getNextNode();
 		}
-		
+
 		return size;
 	}
 
@@ -57,15 +55,15 @@ public class MyDoubleLinkedList<T> implements Serializable{
 		else {
 			DNode<T> previousHead = top;
 			DNode<T> newHead = new DNode<T> (t);
-			
+
 			newHead.setNextNode(previousHead);
 			previousHead.setPreviousNode(newHead);
-			
+
 			top = newHead;
 		}
-		
-		incrementSize();
-		
+
+//		incrementSize();
+
 	}
 
 	/******************************************************************
@@ -80,11 +78,22 @@ public class MyDoubleLinkedList<T> implements Serializable{
 			tail = null;
 		}
 		else if (tail == null) {
-		
-			DNode<T> tailNode = new DNode<T>(t);
-		
+
+			tail = new DNode<T>(t);
+			top.setNextNode(this.tail);
+			tail.setPreviousNode(this.top);
 		}
-		
+		else {
+			DNode<T> previousTail = tail;
+			DNode<T> newTail = new DNode<T> (t);
+
+			newTail.setPreviousNode(previousTail);
+			previousTail.setNextNode(newTail);
+			tail = newTail;
+		}
+
+//		incrementSize();
+
 	}
 
 	/******************************************************************
@@ -101,19 +110,94 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	 * @param index
 	 * @return
 	 *****************************************************************/
-	public boolean remove (int index) {
-		return false;
+	public T remove (int index) {
+
+		// Removing from the front
+		if (index == 0 && top != null) {
+
+			DNode<T> nextNode = top.getNextNode();
+
+			if (nextNode != null) {
+				nextNode.setPreviousNode(null);
+			}
+			DNode<T> previousTop = top;
+
+			top = null;
+			top = nextNode;
+//			decrementSize();
+
+			return previousTop.getData();
+		}
+
+		// removing from the back
+		if (index == getSize() - 1) {
+			
+			DNode<T> previousTail = tail;
+			
+			if (top != null) {
+				if (tail != null) {
+					DNode<T> newTail = tail.getPreviousNode();
+					tail = null;
+					newTail.setNextNode(null);
+					tail = newTail;
+				}
+				else {
+					top = null;
+				}
+			}
+//			decrementSize();
+			return previousTail.getData();
+		}
+		
+		// Removing from the middle
+		if (index < getSize()) {
+			DNode<T> nodeToRemove = top;
+			for (int i = 0; i < index - 1; i++) 
+				nodeToRemove = nodeToRemove.getNextNode();
+			
+			DNode<T> prevNode = nodeToRemove.getPreviousNode();
+			DNode<T> nextNode = nodeToRemove.getNextNode();
+			
+			// head node does not have a previous node
+			if (prevNode == null) {
+				top = null;
+				top = nextNode;
+				top.setPreviousNode(null);
+				return nodeToRemove.getData();
+			}
+			
+			// Tail does not have a next node
+			else if (nextNode == null) {
+				tail = null;
+				tail = prevNode;
+				tail.setNextNode(null);
+				return nodeToRemove.getData();
+			}
+			
+			// Somewhere in the middle of the linked list
+			else {
+				DNode<T> temp = nodeToRemove;
+				
+				nodeToRemove = null;
+				prevNode.setNextNode(nextNode);
+				nextNode.setPreviousNode(prevNode);
+				
+				return temp.getData();
+			}
+		} 
+
+		return top.getData(); //FIXME what to do here?
 	}
 
-	/******************************************************************
-	 * Removes first occurrence
-	 * @param index
-	 * @return
-	 *****************************************************************/
-	public T removeFirstOccurence (T t) {
-
-		return t;
-	}
+	//	/******************************************************************
+	//	 * Removes first occurrence
+	//	 * @param index
+	//	 * @return
+	//	 *****************************************************************/
+	//	public T removeFirstOccurence (T t) {
+	//
+	//		return t;
+	//	}
 
 	/******************************************************************
 	 * return true if at least one item removed
@@ -131,7 +215,8 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	 * @return
 	 *****************************************************************/
 	public T get(int index) {
-		return T;
+		
+		return top.getData();
 	}
 
 	/******************************************************************
@@ -153,18 +238,18 @@ public class MyDoubleLinkedList<T> implements Serializable{
 		return false;
 	}
 
-	/******************************************************************
-	 * Increments size of list variable by 1
-	 *****************************************************************/
-	public void incrementSize() {
-		size++;
-	}
-
-
-	/******************************************************************
-	 * Decrements the size of the list variable by 1
-	 *****************************************************************/
-	public void decrementSize() {
-		size--;
-	}
+//	/******************************************************************
+//	 * Increments size of list variable by 1
+//	 *****************************************************************/
+//	public void incrementSize() {
+//		size++;
+//	}
+//
+//
+//	/******************************************************************
+//	 * Decrements the size of the list variable by 1
+//	 *****************************************************************/
+//	public void decrementSize() {
+//		size--;
+//	}
 }

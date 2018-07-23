@@ -55,11 +55,11 @@ public class RentalStore extends DefaultTableModel {
 		listDVDs.add(dvd);
 
 		Object[] rowData = new Object[5];
-		
+
 		SimpleDateFormat df = new 
 				SimpleDateFormat("MM/dd/yyyy");
-		
-		
+
+
 		rowData[0] = dvd.getNameOfRenter();
 		rowData[1] = dvd.getTitle();
 		rowData[2] = df.format(dvd.getBought().getTime());
@@ -67,7 +67,7 @@ public class RentalStore extends DefaultTableModel {
 		rowData[4] = "";
 		super.addRow(rowData);
 
-		
+
 		//		fireIntervalAdded(this, 0, listDVDs.size());
 	}
 
@@ -82,7 +82,7 @@ public class RentalStore extends DefaultTableModel {
 		int i = listDVDs.indexOf(dvd);
 		listDVDs.remove(dvd);
 		super.removeRow(i);
-//		super.removeRow(this.get); 
+		//		super.removeRow(this.get); 
 		//		fireIntervalRemoved(this, 0, listDVDs.size());
 	}
 
@@ -166,26 +166,29 @@ public class RentalStore extends DefaultTableModel {
 
 
 
-//		public int getRowCount() {
-//			this.fireTableStructureChanged();
-//			return listDVDs.size();
-//		}
+	//		public int getRowCount() {
+	//			this.fireTableStructureChanged();
+	//			return listDVDs.size();
+	//		}
 
 
-//	public Object getValueAt(int arg0, int arg1) {
-//		if (arg1 == 0)
-//			return listDVDs.get(arg0).getNameOfRenter();
-//		if (arg1 == 1)
-//			return listDVDs.get(arg0).getTitle();
-//		if (arg1 == 2)
-//			return listDVDs.get(arg0).getBought();
-//		if (arg1 == 3)
-//			return listDVDs.get(arg0).getDueBack();
-//		if (arg1 == 4)
-//			return "";
-//		return null;
-//	}
+	//	public Object getValueAt(int arg0, int arg1) {
+	//		if (arg1 == 0)
+	//			return listDVDs.get(arg0).getNameOfRenter();
+	//		if (arg1 == 1)
+	//			return listDVDs.get(arg0).getTitle();
+	//		if (arg1 == 2)
+	//			return listDVDs.get(arg0).getBought();
+	//		if (arg1 == 3)
+	//			return listDVDs.get(arg0).getDueBack();
+	//		if (arg1 == 4)
+	//			return "";
+	//		return null;
+	//	}
 
-
+@Override
+public Object getValueAt (int rowIndex, int colIndex) {
+	DVD dvd = this.getElementAt(rowIndex);
+}
 
 }
