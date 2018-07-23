@@ -36,8 +36,8 @@ public class RentGameDialog  extends JDialog implements ActionListener{
 	/** Text field for the due date of the game */
 	private JTextField DueBackTxt;
 	
-	/** Text field for the type of player for the game */
-	private JTextField typeOfPlayer;
+	/** combo box for the type of player for the game */
+	private JComboBox<PlayerType> typeOfPlayer;
 
 	/** JButton for the Ok button on the dialog screen */
 	private JButton okButton;
@@ -106,9 +106,19 @@ public class RentGameDialog  extends JDialog implements ActionListener{
 		DueBackTxt = new JTextField(df.format(date), 15);
 		textPanel.add(DueBackTxt);
 
-		// Text field for the type of player
+		// JComboBox for the type of player
 		textPanel.add(new JLabel("Type of Player: "));
-		typeOfPlayer = new JTextField("Xbox1", 15);
+		
+		
+		PlayerType[] gameNames = new PlayerType[PlayerType.values().length];
+		int i = 0;
+		for (PlayerType p : PlayerType.values()) {
+			gameNames[i++] = p;
+		}
+		
+		typeOfPlayer = new JComboBox<>(gameNames);
+		
+		
 		textPanel.add(typeOfPlayer);
 
 		getContentPane().add(textPanel, BorderLayout.CENTER);
@@ -276,7 +286,7 @@ public class RentGameDialog  extends JDialog implements ActionListener{
 
 		// Sets the Game's player type
 		try {
-			PlayerType p = PlayerType.valueOf(typeOfPlayer.getText());
+			PlayerType p = (PlayerType) typeOfPlayer.getSelectedItem();
 			unit.setPlayer(p);
 		}
 		catch (Exception ex) {
