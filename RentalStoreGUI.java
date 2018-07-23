@@ -70,6 +70,12 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 	 * Creates the elements of the GUI
 	 *****************************************************************/
 	public RentalStoreGUI() {
+		// Run the constructor for the JFrame constructor
+		super();
+		
+//		// Initialize the RentalStore and DefaultTableModel objects
+//		rentalStore = new RentalStore();
+//		rentalTableModel = new DefaultTableModel( new String[0][], columnNames);
 
 		//adding menu bar and menu items
 		menus = new JMenuBar();

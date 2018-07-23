@@ -206,6 +206,26 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	 *****************************************************************/
 	public boolean removeAll (T t) {
 
+		DNode<T> currentNode = top;
+		
+		int index;
+		
+		int beforeSize = getSize();
+		
+		while (currentNode != null) {
+			T currentData = currentNode.getData();
+			index = 0;
+			
+			if (currentData.equals(t)) {
+				remove(index);
+			}
+			currentNode = currentNode.getNextNode();
+			index++;
+		}
+		
+		if (beforeSize > getSize())
+			return true; 
+		
 		return false;
 	}
 

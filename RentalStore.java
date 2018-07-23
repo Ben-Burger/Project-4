@@ -186,9 +186,9 @@ public class RentalStore extends DefaultTableModel {
 	//		return null;
 	//	}
 
-@Override
-public Object getValueAt (int rowIndex, int colIndex) {
-	DVD dvd = this.getElementAt(rowIndex);
-}
+//@Override
+//public Object getValueAt (int rowIndex, int colIndex) {
+//	DVD dvd = this.getElementAt(rowIndex);
+//}
 
 }
