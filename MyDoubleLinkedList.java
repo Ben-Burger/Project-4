@@ -18,6 +18,16 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	}
 
 	public int getSize() {
+		
+		size = 0;
+		
+		DNode<T> currentNode = top;
+		
+		while (currentNode != null) {
+			size++;
+			currentNode = currentNode.getNextNode();
+		}
+		
 		return size;
 	}
 
@@ -36,17 +46,17 @@ public class MyDoubleLinkedList<T> implements Serializable{
 
 		// If list is empty, new node is head
 		if (top == null) {
-			top = new DNode(t);
+			top = new DNode<T> (t);
 			tail = null;
 		}
 		else if (tail == null) {
-			tail = new DNode(t);
+			tail = new DNode<T> (t);
 			top.setNextNode(tail);
 			tail.setPreviousNode(top);
 		}
 		else {
 			DNode<T> previousHead = top;
-			DNode<T> newHead = new DNode(t);
+			DNode<T> newHead = new DNode<T> (t);
 			
 			newHead.setNextNode(previousHead);
 			previousHead.setPreviousNode(newHead);
@@ -64,6 +74,17 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	 *****************************************************************/
 	public void addAtTail(T t) {
 
+		if (top == null) {
+			DNode<T> insertNode = new DNode<T>(t);
+			top = insertNode;
+			tail = null;
+		}
+		else if (tail == null) {
+		
+			DNode<T> tailNode = new DNode<T>(t);
+		
+		}
+		
 	}
 
 	/******************************************************************

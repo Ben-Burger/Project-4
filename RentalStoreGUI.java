@@ -7,6 +7,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 
 /**********************************************************************
  * Creates the GUI for the rental store
@@ -83,6 +86,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		//adding items to bar
 		fileMenu.add(openSerItem);
 		fileMenu.add(saveSerItem);
+		fileMenu.add(openTextItem);
+		fileMenu.add(saveTextItem);
 		fileMenu.add(exitItem);
 		actionMenu.add(rentDVD);
 		actionMenu.add(rentGame);
@@ -95,6 +100,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		//adding actionListener
 		openSerItem.addActionListener(this);
 		saveSerItem.addActionListener(this);
+		openTextItem.addActionListener(this);
+		saveTextItem.addActionListener(this);
 		exitItem.addActionListener(this);
 		rentDVD.addActionListener(this);
 		rentGame.addActionListener(this);
@@ -123,7 +130,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 
 		Object comp = e.getSource();
 
-		// Opening a file 
+		// Opening a serializable file 
 		if (openSerItem == comp || openTextItem == comp) {
 			JFileChooser chooser = new JFileChooser();
 			int status = chooser.showOpenDialog(null);
@@ -132,10 +139,21 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 						getAbsolutePath();
 				if (openSerItem == comp)
 					list.loadFromSerializable(filename);
+				
+				if (openTextItem == comp) {
+					try {
+						PrintWriter myWriter = new PrintWriter(filename);
+						myWriter.println(list);
+						myWriter.close();
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 			}
 		}
 
-		// Saving a file
+		// Saving a serializable file
 		if (saveSerItem == comp || saveTextItem == comp) {
 			JFileChooser chooser = new JFileChooser();
 			int status = chooser.showSaveDialog(null);
@@ -144,6 +162,21 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 						getAbsolutePath();
 				if (saveSerItem == e.getSource())
 					list.saveAsSerializable(filename);
+				if (saveTextItem == e.getSource()) {
+					try {
+						PrintStream out = new PrintStream(new FileOutputStream(filename));
+						out.print(list.toString());
+						
+//						PrintWriter myWriter = new PrintWriter(filename);
+//						myWriter.println(list);
+//						myWriter.flush();
+//						myWriter.close();
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				
 			}
 		}
 
