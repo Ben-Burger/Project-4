@@ -116,7 +116,7 @@ public class RentGameDialog  extends JDialog implements ActionListener{
 			gameNames[i++] = p;
 		}
 		
-		typeOfPlayer = new JComboBox<>(gameNames);
+		typeOfPlayer = new JComboBox<>(gameNames); 
 		
 		
 		textPanel.add(typeOfPlayer);

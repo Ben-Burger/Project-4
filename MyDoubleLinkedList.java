@@ -73,13 +73,7 @@ public class MyDoubleLinkedList<T> implements Serializable{
 		if (top == null) {
 			DNode<T> insertNode = new DNode<T>(t);
 			top = insertNode;
-			tail = null;
-		}
-		else if (tail == null) {
-
-			tail = new DNode<T>(t);
-			top.setNextNode(this.tail);
-			tail.setPreviousNode(this.top);
+			tail = insertNode;
 		}
 		else {
 			DNode<T> previousTail = tail;
@@ -89,8 +83,7 @@ public class MyDoubleLinkedList<T> implements Serializable{
 			previousTail.setNextNode(newTail);
 			tail = newTail;
 		}
-
-
+		System.out.println(toString());
 	}
 
 	/******************************************************************
@@ -229,7 +222,7 @@ public class MyDoubleLinkedList<T> implements Serializable{
 
 			DNode<T> getNode = top;
 
-			for (int i = 0; i < index - 1; i++)
+			for (int i = 0; i < index; i++)
 				getNode = getNode.getNextNode();
 
 			return getNode.getData();
@@ -241,7 +234,7 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	 * @param t - the type of object that is being searched for
 	 * @return integer of the index the object is found or -1
 	 *****************************************************************/
-	public int find(T t) {
+	public int find(T t) throws Exception {
 
 		DNode<T> findNode = top;
 
@@ -269,5 +262,27 @@ public class MyDoubleLinkedList<T> implements Serializable{
 			return -1;
 		
 		throw new Exception("How did you get here");
+	}
+	
+	public String toString() {
+		
+		// Show the linked list forward
+		String string = "Forward: ";
+		DNode<T> currentNode = top;
+		while (currentNode != null){
+			string += currentNode.toString() + " ";
+			currentNode = currentNode.getNextNode();
+		}
+		
+		// Show hte linked list backward
+		string += "\nBackward: ";
+		currentNode = tail;
+		while (currentNode != null) {
+			string += currentNode.toString() + " ";
+			currentNode = currentNode.getPreviousNode();
+		}
+		
+		return string;
+		
 	}
 }

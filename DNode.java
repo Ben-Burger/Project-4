@@ -1,7 +1,11 @@
 package project4;
 
+import java.io.Serializable;
 
-public class DNode <T> {
+public class DNode <T> implements Serializable{
+	
+	/** Saves a DVD object as a binary file */
+	private static final long serialVersionUID = 1L;
 
 	private T data;
 	
@@ -9,6 +13,8 @@ public class DNode <T> {
 	private DNode<T> previousNode;	
 
 	public DNode() {
+		nextNode = null;
+		previousNode = null;
 	}
 	
 	public DNode(T data, DNode<T> previousNode, DNode<T> nextNode) {
@@ -19,6 +25,8 @@ public class DNode <T> {
 	
 	public DNode(T data) {
 		this.data = data;
+		nextNode = null;
+		previousNode = null;
 	}
 
 	public T getData() {

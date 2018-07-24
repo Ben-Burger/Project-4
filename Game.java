@@ -10,6 +10,9 @@ import java.util.GregorianCalendar;
  *********************************************************************/
 public class Game extends DVD {
 	
+	/** Saves a DVD object as a binary file */
+	private static final long serialVersionUID = 1L;
+	
 	/** Represents the type of player */
 	private PlayerType player; 
 	
@@ -76,5 +79,16 @@ public class Game extends DVD {
 				", rented on: " + convertDateToString(bought) +
 				", Due back on: " + convertDateToString(dueBack)
 				+ ", Game Player: " + player;
+	}
+	
+	/******************************************************************
+	 * Takes the DVD object and returns the details of it with tabs
+	 * @return String of the details of the DVD object
+	 *****************************************************************/
+	public String toStringSave() {
+		return nameOfRenter + "\t" + title + "\t" +
+				convertDateToString(bought) + "\t" + 
+				convertDateToString(dueBack) + "\t" +
+				player;
 	}
 }

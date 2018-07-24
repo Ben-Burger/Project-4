@@ -2,7 +2,12 @@ package project4;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+
+import project4.PlayerType;
+
 import java.io.*;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -19,7 +24,7 @@ public class RentalStore extends AbstractTableModel {
 	private static final long serialVersionUID = 1L;
 
 	/** the list of DVD (also Game) rentals **/
-	private LinkedList<DVD> listDVDs;
+	private MyDoubleLinkedList<DVD> listDVDs;
 
 
 	/******************************************************************
@@ -29,7 +34,7 @@ public class RentalStore extends AbstractTableModel {
 	 *****************************************************************/
 	public RentalStore() {
 		super();							// parent class's constructor
-		listDVDs = new LinkedList<DVD>();	// instantiating listDVDs
+		listDVDs = new MyDoubleLinkedList<DVD>();	// instantiating listDVDs
 	}
 
 
@@ -53,7 +58,7 @@ public class RentalStore extends AbstractTableModel {
 	 *****************************************************************/
 	public void add (DVD dvd) {
 		listDVDs.add(dvd);
-		fireTableDataChanged();
+		fireTableRowsInserted(getSize() - 1 , getSize() - 1);
 	}
 
 
@@ -62,8 +67,8 @@ public class RentalStore extends AbstractTableModel {
 	 * Removes a DVD object from the LinkedList listDVDs.
 	 * @param dvd - the DVD object being removed from the list
 	 *****************************************************************/
-	public void remove (DVD dvd) {
-		listDVDs.remove(dvd);
+	public void remove (int index) {
+		listDVDs.remove(index); 
 		fireTableDataChanged();
 
 	}
@@ -94,7 +99,7 @@ public class RentalStore extends AbstractTableModel {
 	 * @return int - the size of the list
 	 *****************************************************************/
 	public int getSize() {
-		return listDVDs.size();
+		return listDVDs.getSize();
 	}
 
 
@@ -125,12 +130,9 @@ public class RentalStore extends AbstractTableModel {
 			FileInputStream fis = new FileInputStream(filename);
 			ObjectInputStream is = new ObjectInputStream(fis);
 
-			listDVDs = (LinkedList<DVD>) is.readObject();
-			if (listDVDs.size() > 0)
-				//				fireIntervalAdded(this, 0, listDVDs.size() - 1);
-				//			else 
-				//				fireIntervalAdded(this, 0, listDVDs.size());
-				is.close();
+			listDVDs = (MyDoubleLinkedList<DVD>) is.readObject();
+			fireTableDataChanged();
+			is.close();
 		}
 		catch (Exception ex) {
 			JOptionPane.showMessageDialog(null,"Error in loading "
@@ -139,6 +141,64 @@ public class RentalStore extends AbstractTableModel {
 		}
 	}
 
+	/****************************************************************** 
+	 * Saves listDVDs as a text file.
+	 * @param filename - file name that listDVDs is saved as
+	 *****************************************************************/
+	public void saveAsText(String filename) {
+		try {
+			PrintWriter pw = new PrintWriter(filename);
+			for (int i = 0; i < listDVDs.getSize(); i++) {
+				pw.println(listDVDs.get(i).toStringSave());
+			}
+			pw.close();
+		}
+		catch (IOException ex) {
+			JOptionPane.showMessageDialog(null,"Error in saving rental"
+					+ " list");
+		}
+	}
+
+
+	/****************************************************************** 
+	 * Loads listDVDs from a text file.
+	 * @param filename - file name that listDVDs is loaded from
+	 *****************************************************************/
+	public void loadFromText(String filename) {
+		try {
+
+			listDVDs = new MyDoubleLinkedList<DVD>();
+			Scanner sc = new Scanner (new File(filename));
+			while (sc.hasNextLine()) {
+				String[] line = sc.nextLine().split("\t");
+				if (line.length == 4) {
+					DVD dvd = new DVD();
+					dvd.setNameOfRenter(line[0]);
+					dvd.setTitle(line[1]);
+					dvd.setBought(convertStringtoGreg(line[2]));
+					dvd.setDueBack(convertStringtoGreg(line[3]));
+					listDVDs.add(dvd);
+				}
+				if (line.length == 5) {
+					Game game = new Game();
+					game.setNameOfRenter(line[0]);
+					game.setTitle(line[1]);
+					game.setBought(convertStringtoGreg(line[2]));
+					game.setDueBack(convertStringtoGreg(line[3]));
+					game.setPlayer(PlayerType.valueOf(line[4]));
+					listDVDs.add(game);
+				}
+			}
+			sc.close();
+			fireTableDataChanged();
+		}
+		catch (Exception ex) {
+			JOptionPane.showMessageDialog(null,"Error in loading "
+					+ "rental list");
+			ex.printStackTrace();
+		}
+
+	}
 
 
 	public int getColumnCount() {
@@ -146,7 +206,7 @@ public class RentalStore extends AbstractTableModel {
 	}
 
 	public int getRowCount() {
-		return listDVDs.size();
+		return listDVDs.getSize();
 	}
 
 	public Object getValueAt (int rowIndex, int colIndex) {
@@ -168,9 +228,24 @@ public class RentalStore extends AbstractTableModel {
 				return ((Game) dvd).getPlayer();
 
 		return null;
-		
-		
+
+
 	}
 
-	
+	public GregorianCalendar convertStringtoGreg(String s) {
+		DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+		Date date;
+		try {
+			date = df.parse(s);
+			GregorianCalendar cal = new GregorianCalendar();
+			cal.setTime(date);
+			return cal;
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+
 }

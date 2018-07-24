@@ -150,14 +150,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 					store.loadFromSerializable(filename);
 				
 				if (openTextItem == comp) {
-					try {
-						PrintWriter myWriter = new PrintWriter(filename);
-						myWriter.println(store);
-						myWriter.close();
-					} catch (FileNotFoundException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					store.loadFromText(filename);
 				}
 			}
 		}
@@ -171,21 +164,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 						getAbsolutePath();
 				if (saveSerItem == e.getSource())
 					store.saveAsSerializable(filename);
-//				if (saveTextItem == e.getSource()) {
-//					try {
-//						PrintStream out = new PrintStream(new FileOutputStream(filename));
-//						out.print(list.toString());
-//						
-////						PrintWriter myWriter = new PrintWriter(filename);
-////						myWriter.println(list);
-////						myWriter.flush();
-////						myWriter.close();
-//					} catch (FileNotFoundException e1) {
-//						// TODO Auto-generated catch block
-//						e1.printStackTrace();
-//					}
-//				}
-				
+				if (saveTextItem == e.getSource()) 
+					store.saveAsText(filename);
 			}
 		}
 
@@ -236,7 +216,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 					if (date.compareTo(unit.getBought()) > 0) {
 						JOptionPane.showMessageDialog(null, "Thanks " + unit.getNameOfRenter() + " for returning "
 								+ unit.getTitle() + ", you owe: " + unit.getCost(date) + " dollars");
-						store.remove(unit);
+						store.remove(JListTable.getSelectedRow());
 					}
 					else
 						throw new Exception();
