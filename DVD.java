@@ -153,4 +153,16 @@ public class DVD implements Serializable {
 				", rented on: " + convertDateToString(bought) +
 				", Due back on: " + convertDateToString(dueBack);
 	}
+	
+	/******************************************************************
+	 * Takes the DVD object and returns the details of it with tabs
+	 * @return String of the details of the DVD object
+	 *****************************************************************/
+	public String toStringSave() {
+		return nameOfRenter + "\t" + title + "\t" +
+				convertDateToString(bought) + "\t" + 
+				convertDateToString(dueBack);
+	}
+	
+	
 }

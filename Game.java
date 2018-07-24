@@ -77,4 +77,15 @@ public class Game extends DVD {
 				", Due back on: " + convertDateToString(dueBack)
 				+ ", Game Player: " + player;
 	}
+	
+	/******************************************************************
+	 * Takes the DVD object and returns the details of it with tabs
+	 * @return String of the details of the DVD object
+	 *****************************************************************/
+	public String toStringSave() {
+		return nameOfRenter + "\t" + title + "\t" +
+				convertDateToString(bought) + "\t" + 
+				convertDateToString(dueBack) + "\t" +
+				player;
+	}
 }

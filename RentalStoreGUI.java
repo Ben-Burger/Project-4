@@ -150,14 +150,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 					list.loadFromSerializable(filename);
 				
 				if (openTextItem == comp) {
-					try {
-						PrintWriter myWriter = new PrintWriter(filename);
-						myWriter.println(list);
-						myWriter.close();
-					} catch (FileNotFoundException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					list.loadFromText(filename);
 				}
 			}
 		}
@@ -171,21 +164,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 						getAbsolutePath();
 				if (saveSerItem == e.getSource())
 					list.saveAsSerializable(filename);
-//				if (saveTextItem == e.getSource()) {
-//					try {
-//						PrintStream out = new PrintStream(new FileOutputStream(filename));
-//						out.print(list.toString());
-//						
-////						PrintWriter myWriter = new PrintWriter(filename);
-////						myWriter.println(list);
-////						myWriter.flush();
-////						myWriter.close();
-//					} catch (FileNotFoundException e1) {
-//						// TODO Auto-generated catch block
-//						e1.printStackTrace();
-//					}
-//				}
-				
+				if (saveTextItem == e.getSource()) 
+					list.saveAsText(filename);
 			}
 		}
 
