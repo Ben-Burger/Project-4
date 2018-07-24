@@ -25,6 +25,9 @@ public class RentalStore extends AbstractTableModel {
 
 	/** the list of DVD (also Game) rentals **/
 	private MyDoubleLinkedList<DVD> listDVDs;
+	
+	/** DVD or game that is to be removed */
+	private DVD removedRow;
 
 
 	/******************************************************************
@@ -44,6 +47,9 @@ public class RentalStore extends AbstractTableModel {
 	};
 
 
+	
+
+
 	/**
 	 * Comment later
 	 */
@@ -51,7 +57,15 @@ public class RentalStore extends AbstractTableModel {
 		return columns[col]; 
 	}
 
+	public DVD getRemovedRow() {
+		return removedRow;
+	}
 
+
+	public void setRemovedRow(DVD removedRow) {
+		this.removedRow = removedRow;
+	}
+	
 	/******************************************************************
 	 * Adds a DVD object to the LinkedList listDVDs.
 	 * @param dvd - the DVD object being added to the list
@@ -68,6 +82,8 @@ public class RentalStore extends AbstractTableModel {
 	 * @param dvd - the DVD object being removed from the list
 	 *****************************************************************/
 	public void remove (int index) {
+		removedRow = listDVDs.get(index);
+		
 		listDVDs.remove(index); 
 		fireTableDataChanged();
 
@@ -89,9 +105,9 @@ public class RentalStore extends AbstractTableModel {
 	 * @param i - index of listDVDs
 	 * @return DVD - the DVD object at the given index
 	 *****************************************************************/
-	//	public DVD getElementAt(int i) {	
-	//		return listDVDs.get(i);
-	//	}
+		public DVD getElementAt(int i) {	
+			return listDVDs.get(i);
+		}
 
 
 	/******************************************************************

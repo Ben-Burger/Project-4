@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.io.FileNotFoundException;
@@ -20,6 +21,9 @@ import java.io.PrintWriter;
  * @version 7/7/18
  *********************************************************************/
 public class RentalStoreGUI extends JFrame implements ActionListener {
+
+	/** Saves a DVD object as a binary file */
+	private static final long serialVersionUID = 1L;
 
 	/** Holds menu bar */
 	private JMenuBar menus;
@@ -57,6 +61,9 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 	/** menu item in each of the menus */
 	private JMenuItem showLateItem;
 
+	/** menu item to undo the previous action */
+	private JMenuItem undoItem;
+
 	/** Holds the list engine */
 	private RentalStore store;
 
@@ -66,16 +73,21 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 	/** Scroll pane */
 	private JScrollPane scrollList;
 
+	/** List to keep track of store */
+	private ArrayList<RentalStore> undoList;
+	
+	/** Row that is deleted */
+	private DVD deletedRow;
+
 	/******************************************************************
 	 * Creates the elements of the GUI
 	 *****************************************************************/
 	public RentalStoreGUI() {
 		// Run the constructor for the JFrame constructor
 		super();
-		
-//		// Initialize the RentalStore and DefaultTableModel objects
-//		rentalStore = new RentalStore();
-//		rentalTableModel = new DefaultTableModel( new String[0][], columnNames);
+
+		// Creates the ArrayList for the undo button
+		undoList = new ArrayList<RentalStore>();
 
 		//adding menu bar and menu items
 		menus = new JMenuBar();
@@ -90,6 +102,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		rentGame = new JMenuItem("Rent Game");
 		returnItem = new JMenuItem("Return");
 		showLateItem = new JMenuItem("Show Late Rentals");
+		undoItem = new JMenuItem("Undo");
 
 		//adding items to bar
 		fileMenu.add(openSerItem);
@@ -101,6 +114,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		actionMenu.add(rentGame);
 		actionMenu.add(returnItem);
 		actionMenu.add(showLateItem);
+		actionMenu.add(undoItem);
 
 		menus.add(fileMenu);
 		menus.add(actionMenu);
@@ -115,6 +129,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		rentGame.addActionListener(this);
 		returnItem.addActionListener(this);
 		showLateItem.addActionListener(this);
+		undoItem.addActionListener(this);
 
 		setJMenuBar(menus);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -139,64 +154,92 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 
 		Object comp = e.getSource();
 
-		// Opening a serializable file 
-		if (openSerItem == comp || openTextItem == comp) {
-			JFileChooser chooser = new JFileChooser();
-			int status = chooser.showOpenDialog(null);
-			if (status == JFileChooser.APPROVE_OPTION) {
-				String filename = chooser.getSelectedFile().
-						getAbsolutePath();
-				if (openSerItem == comp)
-					store.loadFromSerializable(filename);
-				
-				if (openTextItem == comp) {
-					store.loadFromText(filename);
-				}
-			}
-		}
+		openList(comp);
 
-		// Saving a serializable file
-		if (saveSerItem == comp || saveTextItem == comp) {
-			JFileChooser chooser = new JFileChooser();
-			int status = chooser.showSaveDialog(null);
-			if (status == JFileChooser.APPROVE_OPTION) {
-				String filename = chooser.getSelectedFile().
-						getAbsolutePath();
-				if (saveSerItem == e.getSource())
-					store.saveAsSerializable(filename);
-				if (saveTextItem == e.getSource()) 
-					store.saveAsText(filename);
-			}
-		}
+		saveList(comp);
 
 		// MenuBar option of exiting
-		if (e.getSource() == exitItem) {
+		if (comp == exitItem) {
 			System.exit(1);
 		}
 
 		// Renting a DVD
-		if (e.getSource() == rentDVD) {
+		if (comp == rentDVD) {
 			DVD dvd = new DVD();
 			RentDVDDialog dialog = new RentDVDDialog(this, dvd);
-			if (dialog.addDVDtoList() == true) 
+			if (dialog.addDVDtoList() == true) {
 				store.add(dvd);
+
+				// New Rental store to save place in time 
+				RentalStore tempStore = new RentalStore();
+
+				for (int i = 0; i < store.getSize(); i++) 
+					tempStore.add(store.get(i));
+
+				undoList.add(tempStore);
+			}
 		}
 
 		// Renting a Game
-		if (e.getSource() == rentGame) {
+		if (comp == rentGame) {
 			Game game = new Game();
 			RentGameDialog dialog = new RentGameDialog(this, game);
-			if (dialog.addGametoList() == true) 
+			if (dialog.addGametoList() == true) {
 				store.add(game);
+
+				// New Rental store to save place in time 
+				RentalStore tempStore = new RentalStore();
+
+				for (int i = 0; i < store.getSize(); i++) 
+					tempStore.add(store.get(i));
+
+				undoList.add(tempStore);
+			}
 		} 
 
-		// Returning a DVD or game
-		if (e.getSource() == returnItem) {
+		// Returns the DVD or Game
+		returnDvdOrGame(comp);
+
+		// Shows what items are late
+		showLateItem(comp);
+
+		// Undoes whatever action just happened
+		if (comp == undoItem) {
+
+			RentalStore endStore = new RentalStore();
+			RentalStore beforeEndStore = new RentalStore();
+
+			// Creates a store that is the most recent store in list
+			endStore = undoList.get(undoList.size() - 1);
+			
+			// Creates a store that is one step behind the action
+			beforeEndStore = undoList.get(undoList.size() - 2);
+
+			// Tests if trying to undo a rent game
+			if (endStore.getSize() > beforeEndStore.getSize()) 
+				store.remove(endStore.getSize() - 1);
+			
+			if (endStore.getSize() < beforeEndStore.getSize())
+				store.add(deletedRow);
+			
+			
+			store.fireTableDataChanged();
+		}
+
+
+	}
+
+	/**
+	 * Returning a DVD or game
+	 * @param comp
+	 */
+	private void returnDvdOrGame(Object comp) {
+		if (comp == returnItem) {
 
 			int index = JListTable.getSelectedRow();
 
 			try {
-
+ 
 				if (index == -1) {
 					throw new IndexOutOfBoundsException();
 				}
@@ -217,6 +260,16 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 						JOptionPane.showMessageDialog(null, "Thanks " + unit.getNameOfRenter() + " for returning "
 								+ unit.getTitle() + ", you owe: " + unit.getCost(date) + " dollars");
 						store.remove(JListTable.getSelectedRow());
+						
+						deletedRow = store.getRemovedRow();
+
+						// New Rental store to save place in time 
+						RentalStore tempStore = new RentalStore();
+
+						for (int i = 0; i < store.getSize(); i++) 
+							tempStore.add(store.get(i));
+
+						undoList.add(tempStore);
 					}
 					else
 						throw new Exception();
@@ -235,9 +288,74 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 						" something that works for the return date");
 			}			
 		}
+	}
 
-		// Checks what items will be late at specific date
-		if (e.getSource() == showLateItem) {
+	/**
+	 * Opening a serializable file 
+	 * @param comp
+	 */
+	private void openList(Object comp) {
+		if (openSerItem == comp || openTextItem == comp) {
+			JFileChooser chooser = new JFileChooser();
+			int status = chooser.showOpenDialog(null);
+			if (status == JFileChooser.APPROVE_OPTION) {
+				String filename = chooser.getSelectedFile().
+						getAbsolutePath();
+				if (openSerItem == comp)
+					store.loadFromSerializable(filename);
+
+				if (openTextItem == comp) {
+					store.loadFromText(filename);
+				}
+
+				// New Rental store to save place in time 
+				RentalStore tempStore = new RentalStore();
+
+				for (int i = 0; i < store.getSize(); i++) 
+					tempStore.add(store.get(i));
+
+				undoList.add(tempStore);
+			}
+		}
+	}
+
+
+
+	/**
+	 * Saving a serializable file
+	 * @param comp
+	 */
+	private void saveList(Object comp) {
+		if (saveSerItem == comp || saveTextItem == comp) {
+			JFileChooser chooser = new JFileChooser();
+			int status = chooser.showSaveDialog(null);
+			if (status == JFileChooser.APPROVE_OPTION) {
+				String filename = chooser.getSelectedFile().
+						getAbsolutePath();
+				if (saveSerItem == comp)
+					store.saveAsSerializable(filename);
+				if (saveTextItem == comp) 
+					store.saveAsText(filename);
+
+				// New Rental store to save place in time 
+				RentalStore tempStore = new RentalStore();
+
+				for (int i = 0; i < store.getSize(); i++) 
+					tempStore.add(store.get(i));
+
+				undoList.add(tempStore);
+			}
+		}
+	}
+
+
+
+	/**
+	 * Checks what items will be late at specific date
+	 * @param comp
+	 */
+	private void showLateItem(Object comp) {
+		if (comp == showLateItem) {
 
 
 			try {

@@ -83,13 +83,14 @@ public class MyDoubleLinkedList<T> implements Serializable{
 			previousTail.setNextNode(newTail);
 			tail = newTail;
 		}
-		System.out.println(toString());
+//		System.out.println(toString());
 	}
 
 	/******************************************************************
 	 * Removes data at a specific index
 	 * @param index
 	 * @return
+	 * @throws
 	 *****************************************************************/
 	public T remove (int index) {
 
@@ -131,7 +132,7 @@ public class MyDoubleLinkedList<T> implements Serializable{
 		// Removing from the middle
 		if (index < getSize()) {
 			DNode<T> nodeToRemove = top;
-			for (int i = 0; i < index - 1; i++) 
+			for (int i = 0; i < index; i++) 
 				nodeToRemove = nodeToRemove.getNextNode();
 
 			DNode<T> prevNode = nodeToRemove.getPreviousNode();
