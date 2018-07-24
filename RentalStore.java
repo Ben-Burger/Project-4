@@ -2,9 +2,6 @@ package project4;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
-
-import java.awt.Component;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -42,8 +39,11 @@ public class RentalStore extends AbstractTableModel {
 	};
 
 
+	/**
+	 * Comment later
+	 */
 	public String getColumnName(int col) {
-		return columns[col];
+		return columns[col]; 
 	}
 
 
@@ -64,7 +64,6 @@ public class RentalStore extends AbstractTableModel {
 	 *****************************************************************/
 	public void remove (DVD dvd) {
 		listDVDs.remove(dvd);
-		//		fireIntervalRemoved(this, 0, listDVDs.size());
 		fireTableDataChanged();
 
 	}

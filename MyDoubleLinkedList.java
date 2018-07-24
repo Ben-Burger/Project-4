@@ -35,15 +35,13 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	public void clear() {
 		top = null;
 		tail = null;
-		 
-		// hi ben
 	}
 
 	/******************************************************************
 	 * Add at the top
 	 * @param t
 	 *****************************************************************/
-	public void addAtTop (T t) {
+	public void addFirst (T t) {
 
 		// If list is empty, new node is head
 		if (top == null) {
@@ -64,16 +62,13 @@ public class MyDoubleLinkedList<T> implements Serializable{
 
 			top = newHead;
 		}
-
-//		incrementSize();
-
 	}
 
 	/******************************************************************
 	 * Add at the tail
 	 * @param t
 	 *****************************************************************/
-	public void addAtTail(T t) {
+	public void add(T t) {
 
 		if (top == null) {
 			DNode<T> insertNode = new DNode<T>(t);
@@ -95,16 +90,6 @@ public class MyDoubleLinkedList<T> implements Serializable{
 			tail = newTail;
 		}
 
-//		incrementSize();
-
-	}
-
-	/******************************************************************
-	 * Adds anywhere in the list
-	 * @param t
-	 * @param index
-	 *****************************************************************/
-	public void add(T t, int index) {
 
 	}
 
@@ -116,7 +101,7 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	public T remove (int index) {
 
 		// Removing from the front
-		if (index == 0 && top != null) {
+		if (index == 0 && top!= null) {
 
 			DNode<T> nextNode = top.getNextNode();
 
@@ -127,16 +112,15 @@ public class MyDoubleLinkedList<T> implements Serializable{
 
 			top = null;
 			top = nextNode;
-//			decrementSize();
 
 			return previousTop.getData();
 		}
 
 		// removing from the back
 		if (index == getSize() - 1) {
-			
+
 			DNode<T> previousTail = tail;
-			
+
 			if (top != null) {
 				if (tail != null) {
 					DNode<T> newTail = tail.getPreviousNode();
@@ -148,19 +132,18 @@ public class MyDoubleLinkedList<T> implements Serializable{
 					top = null;
 				}
 			}
-//			decrementSize();
 			return previousTail.getData();
 		}
-		
+
 		// Removing from the middle
 		if (index < getSize()) {
 			DNode<T> nodeToRemove = top;
 			for (int i = 0; i < index - 1; i++) 
 				nodeToRemove = nodeToRemove.getNextNode();
-			
+
 			DNode<T> prevNode = nodeToRemove.getPreviousNode();
 			DNode<T> nextNode = nodeToRemove.getNextNode();
-			
+
 			// head node does not have a previous node
 			if (prevNode == null) {
 				top = null;
@@ -168,7 +151,7 @@ public class MyDoubleLinkedList<T> implements Serializable{
 				top.setPreviousNode(null);
 				return nodeToRemove.getData();
 			}
-			
+
 			// Tail does not have a next node
 			else if (nextNode == null) {
 				tail = null;
@@ -176,31 +159,21 @@ public class MyDoubleLinkedList<T> implements Serializable{
 				tail.setNextNode(null);
 				return nodeToRemove.getData();
 			}
-			
+
 			// Somewhere in the middle of the linked list
 			else {
 				DNode<T> temp = nodeToRemove;
-				
+
 				nodeToRemove = null;
 				prevNode.setNextNode(nextNode);
 				nextNode.setPreviousNode(prevNode);
-				
+
 				return temp.getData();
-			}
+			} 
 		} 
 
-		return top.getData(); //FIXME what to do here?
+		throw new RuntimeException();
 	}
-
-	//	/******************************************************************
-	//	 * Removes first occurrence
-	//	 * @param index
-	//	 * @return
-	//	 *****************************************************************/
-	//	public T removeFirstOccurence (T t) {
-	//
-	//		return t;
-	//	}
 
 	/******************************************************************
 	 * return true if at least one item removed
@@ -210,69 +183,91 @@ public class MyDoubleLinkedList<T> implements Serializable{
 	public boolean removeAll (T t) {
 
 		DNode<T> currentNode = top;
-		
+
 		int index;
-		
+
 		int beforeSize = getSize();
-		
+
 		while (currentNode != null) {
 			T currentData = currentNode.getData();
 			index = 0;
-			
+
 			if (currentData.equals(t)) {
 				remove(index);
 			}
 			currentNode = currentNode.getNextNode();
 			index++;
 		}
-		
+
 		if (beforeSize > getSize())
 			return true; 
-		
+
 		return false;
 	}
 
 	/******************************************************************
-	 * 
-	 * @param index
-	 * @return
+	 * Gets the node at the specified index
+	 * @param index of the double linked list
+	 * @return T - object stored within the node
+	 * @throws IllegalArgumentException when index is less than 0
+	 * @throws IllegalArgumentException when index is greater than 
+	 * list size
 	 *****************************************************************/
 	public T get(int index) {
-		
-		return top.getData();
+
+		if (index < 0)
+			throw new IllegalArgumentException("Enter index" +
+					" greater than 0");
+		if (index > getSize() - 1)
+			throw new IllegalArgumentException("Enter index" +
+					" smaller than list size");
+
+		if (index == 0)
+			return top.getData();
+
+		else {
+
+			DNode<T> getNode = top;
+
+			for (int i = 0; i < index - 1; i++)
+				getNode = getNode.getNextNode();
+
+			return getNode.getData();
+		}
 	}
 
 	/******************************************************************
 	 * return index if found, -1 otherwise
-	 * @param t
-	 * @return
+	 * @param t - the type of object that is being searched for
+	 * @return integer of the index the object is found or -1
 	 *****************************************************************/
 	public int find(T t) {
-		return 0;
-	}
 
-	/******************************************************************
-	 * Checks if list is empty
-	 * @return true or false whether list is empty
-	 *****************************************************************/
-	public boolean isEmpty() {
-		if (top == null && tail == null)
-			return true;
-		return false;
-	}
+		DNode<T> findNode = top;
 
-//	/******************************************************************
-//	 * Increments size of list variable by 1
-//	 *****************************************************************/
-//	public void incrementSize() {
-//		size++;
-//	}
-//
-//
-//	/******************************************************************
-//	 * Decrements the size of the list variable by 1
-//	 *****************************************************************/
-//	public void decrementSize() {
-//		size--;
-//	}
+		// Checks if head is the object being searched for
+		if (findNode.getData().equals(t))
+			return 0;
+		
+		// Checks if tail is the object being searched for
+		else if (tail.equals(t))
+			return getSize() - 1;
+		
+		// Checks if body has the object being searched for
+		else if (!findNode.getData().equals(t)){
+			
+			int searching = 1;
+			
+			for (int i = 0; i < getSize() - 1; i++) {
+				findNode = findNode.getNextNode();
+				searching++;
+				if (findNode.equals(t))
+					return searching; 
+			}
+		}
+		else
+			return -1;
+		
+		throw new Exception("How did you get here");
+	}
 }

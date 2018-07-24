@@ -58,7 +58,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 	private JMenuItem showLateItem;
 
 	/** Holds the list engine */
-	private RentalStore list;
+	private RentalStore store;
 
 	/** Holds JListTable */
 	private JTable JListTable;
@@ -120,9 +120,9 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		//adding the list to the GUI and scrolling pane
-		list = new RentalStore();
+		store = new RentalStore();
 
-		JListTable = new JTable(list);
+		JListTable = new JTable(store);
 		scrollList = new JScrollPane(JListTable);
 		add(scrollList);
 		setVisible(true);
@@ -147,12 +147,12 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 				String filename = chooser.getSelectedFile().
 						getAbsolutePath();
 				if (openSerItem == comp)
-					list.loadFromSerializable(filename);
+					store.loadFromSerializable(filename);
 				
 				if (openTextItem == comp) {
 					try {
 						PrintWriter myWriter = new PrintWriter(filename);
-						myWriter.println(list);
+						myWriter.println(store);
 						myWriter.close();
 					} catch (FileNotFoundException e1) {
 						// TODO Auto-generated catch block
@@ -170,7 +170,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 				String filename = chooser.getSelectedFile().
 						getAbsolutePath();
 				if (saveSerItem == e.getSource())
-					list.saveAsSerializable(filename);
+					store.saveAsSerializable(filename);
 //				if (saveTextItem == e.getSource()) {
 //					try {
 //						PrintStream out = new PrintStream(new FileOutputStream(filename));
@@ -199,7 +199,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 			DVD dvd = new DVD();
 			RentDVDDialog dialog = new RentDVDDialog(this, dvd);
 			if (dialog.addDVDtoList() == true) 
-				list.add(dvd);
+				store.add(dvd);
 		}
 
 		// Renting a Game
@@ -207,7 +207,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 			Game game = new Game();
 			RentGameDialog dialog = new RentGameDialog(this, game);
 			if (dialog.addGametoList() == true) 
-				list.add(game);
+				store.add(game);
 		} 
 
 		// Returning a DVD or game
@@ -230,13 +230,13 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 
 					Date newDate = df.parse(inputDate);
 					date.setTime(newDate);
-					DVD unit = list.get(index);
+					DVD unit = store.get(index);
 
 					//Checks if return date is before bought date
 					if (date.compareTo(unit.getBought()) > 0) {
 						JOptionPane.showMessageDialog(null, "Thanks " + unit.getNameOfRenter() + " for returning "
 								+ unit.getTitle() + ", you owe: " + unit.getCost(date) + " dollars");
-						list.remove(unit);
+						store.remove(unit);
 					}
 					else
 						throw new Exception();
@@ -281,12 +281,12 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 					throw new Exception();
 
 				int lateListIndex = 0;
-				String[] lateList = new String[list.getSize()];
+				String[] lateList = new String[store.getSize()];
 
 
 				// Compares dates to check how late an item would be
-				for (int i = 0; i < list.getSize(); i++) {
-					long milliRental =  list.get(i).getDueBack().
+				for (int i = 0; i < store.getSize(); i++) {
+					long milliRental =  store.get(i).getDueBack().
 							getTimeInMillis();
 					long daysRental = milliRental / 
 							(24 * 60 * 60 * 1000);
@@ -294,7 +294,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 							getTimeInMillis();
 					long daysDate = milliDate / (24 * 60 * 60 * 1000);
 					if (daysDate - daysRental > 0) {
-						lateList [lateListIndex] = list.get(i).
+						lateList [lateListIndex] = store.get(i).
 								toString() + ",  Days late: " +
 								(daysDate - daysRental);
 						lateListIndex++;

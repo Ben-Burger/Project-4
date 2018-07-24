@@ -6,11 +6,7 @@ public class DNode <T> {
 	private T data;
 	
 	private DNode<T> nextNode;
-	private DNode<T> previousNode;
-	
-	//Hi ben
-	
-	
+	private DNode<T> previousNode;	
 
 	public DNode() {
 	}
