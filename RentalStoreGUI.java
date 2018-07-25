@@ -73,14 +73,12 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 	/** Scroll pane */
 	private JScrollPane scrollList;
 
-	/** List to keep track of store */
-	private ArrayList<RentalStore> undoList;
-	
-	/** Row that is deleted */
-	private DVD deletedRow;
-	
-	/** Index of deleted row */
-	private int deletedIndex;
+
+//	/** List to keep track of store */
+//	private ArrayList<RentalStore> undoList;
+//	
+//	/** Row that is deleted */
+//	private DVD deletedRow;
 
 	/******************************************************************
 	 * Creates the elements of the GUI
@@ -89,8 +87,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		// Run the constructor for the JFrame constructor
 		super();
 
-		// Creates the ArrayList for the undo button
-		undoList = new ArrayList<RentalStore>();
+//		// Creates the ArrayList for the undo button
+//		undoList = new ArrayList<RentalStore>();
 
 		//adding menu bar and menu items
 		menus = new JMenuBar();
@@ -173,13 +171,13 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 			if (dialog.addDVDtoList() == true) {
 				store.add(dvd);
 
-				// New Rental store to save place in time 
-				RentalStore tempStore = new RentalStore();
-
-				for (int i = 0; i < store.getSize(); i++) 
-					tempStore.add(store.get(i));
-
-				undoList.add(tempStore);
+//				// New Rental store to save place in time 
+//				RentalStore tempStore = new RentalStore();
+//
+//				for (int i = 0; i < store.getSize(); i++) 
+//					tempStore.add(store.get(i));
+//
+////				undoList.add(tempStore);
 			}
 		}
 
@@ -190,13 +188,13 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 			if (dialog.addGametoList() == true) {
 				store.add(game);
 
-				// New Rental store to save place in time 
-				RentalStore tempStore = new RentalStore();
-
-				for (int i = 0; i < store.getSize(); i++) 
-					tempStore.add(store.get(i));
-
-				undoList.add(tempStore);
+//				// New Rental store to save place in time 
+//				RentalStore tempStore = new RentalStore();
+//
+//				for (int i = 0; i < store.getSize(); i++) 
+//					tempStore.add(store.get(i));
+//
+////				undoList.add(tempStore);
 			}
 		} 
 
@@ -209,28 +207,27 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		// Undoes whatever action just happened
 		if (comp == undoItem) {
 
-			RentalStore endStore = new RentalStore();
-			RentalStore beforeEndStore = new RentalStore();
+			
+			store.undo();
 
-			// Creates a store that is the most recent store in list
-			endStore = undoList.get(undoList.size() - 1);
-			
-			// Creates a store that is one step behind the action
-			beforeEndStore = undoList.get(undoList.size() - 2);
-
-			// Trying to undo a rent DVD
-			if (endStore.getSize() > beforeEndStore.getSize()) 
-				store.remove(endStore.getSize() - 1);
-			
-//			System.out.println(deletedIndex);
-			
-			// Trying to undo a returned DVD
-			if (endStore.getSize() < beforeEndStore.getSize()) {
-				store.addAfter(deletedRow, deletedIndex - 1);
+//			RentalStore endStore = new RentalStore();
+//			RentalStore beforeEndStore = new RentalStore();
+//
+//			// Creates a store that is the most recent store in list
+//			endStore = undoList.get(undoList.size() - 1);
+//			
+//			// Creates a store that is one step behind the action
+//			beforeEndStore = undoList.get(undoList.size() - 2);
+//
+//			// Tests if trying to undo a rent game
+//			if (endStore.getSize() > beforeEndStore.getSize()) 
+//				store.remove(endStore.getSize() - 1);
+//			
+//			if (endStore.getSize() < beforeEndStore.getSize())
 //				store.add(deletedRow);
-			}
-			
-			store.fireTableDataChanged();
+//			
+//			
+//			store.fireTableDataChanged();
 		}
 
 
@@ -268,19 +265,18 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 								+ unit.getTitle() + ", you owe: " + unit.getCost(date) + " dollars");
 
 
-						deletedIndex = JListTable.getSelectedRow();
 						
 						store.remove(JListTable.getSelectedRow());
 						
-						deletedRow = store.getRemovedRow();
-
-						// New Rental store to save place in time 
-						RentalStore tempStore = new RentalStore();
-
-						for (int i = 0; i < store.getSize(); i++) 
-							tempStore.add(store.get(i));
-
-						undoList.add(tempStore);
+//						deletedRow = store.getRemovedRow();
+//
+//						// New Rental store to save place in time 
+//						RentalStore tempStore = new RentalStore();
+//
+//						for (int i = 0; i < store.getSize(); i++) 
+//							tempStore.add(store.get(i));
+//
+//						undoList.add(tempStore);
 					}
 					else
 						throw new Exception();
@@ -319,13 +315,13 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 					store.loadFromText(filename);
 				}
 
-				// New Rental store to save place in time 
-				RentalStore tempStore = new RentalStore();
-
-				for (int i = 0; i < store.getSize(); i++) 
-					tempStore.add(store.get(i));
-
-				undoList.add(tempStore);
+//				// New Rental store to save place in time 
+//				RentalStore tempStore = new RentalStore();
+//
+//				for (int i = 0; i < store.getSize(); i++) 
+//					tempStore.add(store.get(i));
+//
+//				undoList.add(tempStore);
 			}
 		}
 	}
@@ -348,13 +344,13 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 				if (saveTextItem == comp) 
 					store.saveAsText(filename);
 
-				// New Rental store to save place in time 
-				RentalStore tempStore = new RentalStore();
-
-				for (int i = 0; i < store.getSize(); i++) 
-					tempStore.add(store.get(i));
-
-				undoList.add(tempStore);
+//				// New Rental store to save place in time 
+//				RentalStore tempStore = new RentalStore();
+//
+//				for (int i = 0; i < store.getSize(); i++) 
+//					tempStore.add(store.get(i));
+//
+//				undoList.add(tempStore);
 			}
 		}
 	}

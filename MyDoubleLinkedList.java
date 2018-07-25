@@ -2,7 +2,7 @@ package project4;
 
 import java.io.Serializable;
 
-public class MyDoubleLinkedList<T> implements Serializable{
+public class MyDoubleLinkedList<T> implements Serializable, Cloneable {
 
 	/** Saves a DVD object as a binary file */
 	private static final long serialVersionUID = 1L;
@@ -321,5 +321,11 @@ public class MyDoubleLinkedList<T> implements Serializable{
 		
 		return string;
 		
+	}
+	
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+
+	    return super.clone();
 	}
 }
