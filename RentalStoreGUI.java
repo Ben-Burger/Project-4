@@ -78,6 +78,9 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 	
 	/** Row that is deleted */
 	private DVD deletedRow;
+	
+	/** Index of deleted row */
+	private int deletedIndex;
 
 	/******************************************************************
 	 * Creates the elements of the GUI
@@ -215,13 +218,17 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 			// Creates a store that is one step behind the action
 			beforeEndStore = undoList.get(undoList.size() - 2);
 
-			// Tests if trying to undo a rent game
+			// Trying to undo a rent DVD
 			if (endStore.getSize() > beforeEndStore.getSize()) 
 				store.remove(endStore.getSize() - 1);
 			
-			if (endStore.getSize() < beforeEndStore.getSize())
-				store.add(deletedRow);
+//			System.out.println(deletedIndex);
 			
+			// Trying to undo a returned DVD
+			if (endStore.getSize() < beforeEndStore.getSize()) {
+				store.addAfter(deletedRow, deletedIndex - 1);
+//				store.add(deletedRow);
+			}
 			
 			store.fireTableDataChanged();
 		}
@@ -259,6 +266,10 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 					if (date.compareTo(unit.getBought()) > 0) {
 						JOptionPane.showMessageDialog(null, "Thanks " + unit.getNameOfRenter() + " for returning "
 								+ unit.getTitle() + ", you owe: " + unit.getCost(date) + " dollars");
+
+
+						deletedIndex = JListTable.getSelectedRow();
+						
 						store.remove(JListTable.getSelectedRow());
 						
 						deletedRow = store.getRemovedRow();

@@ -28,6 +28,9 @@ public class RentalStore extends AbstractTableModel {
 	
 	/** DVD or game that is to be removed */
 	private DVD removedRow;
+	
+	/** Index of removed DVD */
+	private int removedIndex;
 
 
 	/******************************************************************
@@ -46,10 +49,6 @@ public class RentalStore extends AbstractTableModel {
 			"Name", "Title", "Rented On", "Due Back", "Player Type"
 	};
 
-
-	
-
-
 	/**
 	 * Comment later
 	 */
@@ -66,6 +65,14 @@ public class RentalStore extends AbstractTableModel {
 		this.removedRow = removedRow;
 	}
 	
+	public int getRemovedIndex() {
+		return removedIndex;
+	}
+
+	public void setRemovedIndex(int removedIndex) {
+		this.removedIndex = removedIndex;
+	}
+
 	/******************************************************************
 	 * Adds a DVD object to the LinkedList listDVDs.
 	 * @param dvd - the DVD object being added to the list
@@ -73,6 +80,15 @@ public class RentalStore extends AbstractTableModel {
 	public void add (DVD dvd) {
 		listDVDs.add(dvd);
 		fireTableRowsInserted(getSize() - 1 , getSize() - 1);
+	}
+	
+	/******************************************************************
+	 * Adds a DVD object to the LinkedList listDVDs
+	 * @param dvd - the DVD object being added to the list
+	 *****************************************************************/
+	public void addAfter (DVD dvd, int index) {
+		listDVDs.addAfter(dvd, index);
+		fireTableRowsInserted( 0 , getSize() - 1);
 	}
 
 
@@ -83,6 +99,7 @@ public class RentalStore extends AbstractTableModel {
 	 *****************************************************************/
 	public void remove (int index) {
 		removedRow = listDVDs.get(index);
+		removedIndex = index;
 		
 		listDVDs.remove(index); 
 		fireTableDataChanged();

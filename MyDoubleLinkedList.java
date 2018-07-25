@@ -85,6 +85,42 @@ public class MyDoubleLinkedList<T> implements Serializable{
 		}
 //		System.out.println(toString());
 	}
+	
+	/**
+	 * Adds after index
+	 * @param t
+	 * @param index
+	 */
+	public void addAfter(T t, int index) {
+		if (index < 0)
+			throw new IllegalArgumentException("Enter index greater than 0");
+		
+		DNode<T> temp = top;
+		
+		for (int i = 0; i < index - 1; i++) 
+			temp = temp.getNextNode();
+		
+		DNode<T> insertNode = new DNode<T> (t);
+		
+		System.out.println("hi - 3");
+		
+		if (temp.getNextNode() == null) {
+			tail = insertNode;
+			tail.setPreviousNode(temp);
+			temp.setNextNode(insertNode);
+			System.out.println("hi - 2");
+		}
+		else {
+			temp.setNextNode(insertNode);
+			temp.getNextNode().setPreviousNode(insertNode);
+			
+			insertNode.setPreviousNode(temp);
+			insertNode.setNextNode(temp.getNextNode());
+			System.out.println(toString());
+		}
+		
+		System.out.println("hi - ");
+	}
 
 	/******************************************************************
 	 * Removes data at a specific index
