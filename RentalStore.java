@@ -26,11 +26,14 @@ public class RentalStore extends AbstractTableModel {
 	/** the list of DVD (also Game) rentals */
 	private MyDoubleLinkedList<DVD> listDVDs;
 
-	/** Array list of MyDoubleLinked lists */
-	private ArrayList<MyDoubleLinkedList<DVD>> undoList;
+	
+	private Object[][] undoList = new Object[100][2];
+	
+	private int[] indexLastRemove = new int[100];
 
-	/** DVD or game that is to be removed */
-	private DVD removedRow;
+	private int sizeUndoList = 0;
+	
+	private int numUndos = 0;
 
 
 	/******************************************************************
@@ -39,20 +42,9 @@ public class RentalStore extends AbstractTableModel {
 	 * objects.
 	 *****************************************************************/
 	public RentalStore() {
-		super();							// parent class's constructor
+		super();									// parent class's constructor
 		listDVDs = new MyDoubleLinkedList<DVD>();	// instantiating listDVDs
-		undoList = new ArrayList<MyDoubleLinkedList<DVD>>();
-		MyDoubleLinkedList<DVD> tempList;
-		try {
-			tempList = (MyDoubleLinkedList<DVD>) listDVDs.clone();
-			undoList.add(tempList);
-			
-			printArrayList();
-		} catch (CloneNotSupportedException e) {
-			System.out.println("messed up");
-			e.printStackTrace();
-		}
-		
+		fireTableDataChanged();
 	}
 
 
@@ -61,10 +53,6 @@ public class RentalStore extends AbstractTableModel {
 			"Name", "Title", "Rented On", "Due Back", "Player Type"
 	};
 
-
-
-
-
 	/**
 	 * Comment later
 	 */
@@ -72,14 +60,14 @@ public class RentalStore extends AbstractTableModel {
 		return columns[col]; 
 	}
 
-	public DVD getRemovedRow() {
-		return removedRow;
-	}
-
-
-	public void setRemovedRow(DVD removedRow) {
-		this.removedRow = removedRow;
-	}
+	//	public DVD getRemovedRow() {
+	//		return removedRow;
+	//	}
+	//
+	//
+	//	public void setRemovedRow(DVD removedRow) {
+	//		this.removedRow = removedRow;
+	//	}
 
 	/******************************************************************
 	 * Adds a DVD object to the LinkedList listDVDs.
@@ -87,19 +75,15 @@ public class RentalStore extends AbstractTableModel {
 	 *****************************************************************/
 	public void add (DVD dvd) {
 		listDVDs.add(dvd);
-		MyDoubleLinkedList<DVD> tempList;
-		try {
-			tempList = (MyDoubleLinkedList<DVD>) listDVDs.clone();
-			undoList.add(tempList);
-			fireTableRowsInserted(getSize() - 1 , getSize() - 1);
-			printArrayList();
-		} catch (CloneNotSupportedException e) {
-			System.out.println("messed up");
-			e.printStackTrace();
-		}
+		fireTableDataChanged();
+
 		
+		undoList[sizeUndoList][0] = dvd;
+		undoList[sizeUndoList][1] = "add";
+		sizeUndoList++;
 	}
 
+	
 
 
 	/******************************************************************
@@ -107,12 +91,15 @@ public class RentalStore extends AbstractTableModel {
 	 * @param dvd - the DVD object being removed from the list
 	 *****************************************************************/
 	public void remove (int index) {
-		//		removedRow = listDVDs.get(index); 
-
+		DVD dvd = listDVDs.get(index);
 		listDVDs.remove(index); 
-		undoList.add(listDVDs);
 		fireTableDataChanged();
-		printArrayList();
+
+		
+		undoList[sizeUndoList][0] = dvd;
+		undoList[sizeUndoList][1] = "remove";
+		sizeUndoList++;
+		indexLastRemove[numUndos++] = index;
 	}
 
 
@@ -173,8 +160,10 @@ public class RentalStore extends AbstractTableModel {
 			ObjectInputStream is = new ObjectInputStream(fis);
 
 			listDVDs = (MyDoubleLinkedList<DVD>) is.readObject();
-			fireTableDataChanged();
 			is.close();
+			sizeUndoList = 0;
+			numUndos = 0;
+			fireTableDataChanged();
 		}
 		catch (Exception ex) {
 			JOptionPane.showMessageDialog(null,"Error in loading "
@@ -232,6 +221,8 @@ public class RentalStore extends AbstractTableModel {
 				}
 			}
 			sc.close();
+			sizeUndoList = 0;
+			numUndos = 0;
 			fireTableDataChanged();
 		}
 		catch (Exception ex) {
@@ -275,9 +266,34 @@ public class RentalStore extends AbstractTableModel {
 	}
 
 	public void undo () {
-		undoList.remove(undoList.size()-1);
-		listDVDs = undoList.get(undoList.size()-1);
-		fireTableDataChanged();
+
+		System.out.println(listDVDs);
+		System.out.println();
+		
+		printUndo();
+		
+		if (sizeUndoList > 0) {
+			if (undoList[sizeUndoList-1][1].equals("add")) {
+				listDVDs.remove(listDVDs.getSize()-1); 
+				fireTableDataChanged();
+			}
+			if (undoList[sizeUndoList-1][1].equals("remove")) {
+				if (indexLastRemove[numUndos-1] == listDVDs.getSize())
+					listDVDs.add((DVD) undoList[sizeUndoList-1][0]);
+				else 	
+					listDVDs.addBefore(indexLastRemove[numUndos-1], (DVD) undoList[sizeUndoList-1][0]);
+				numUndos--;
+				fireTableDataChanged();
+			}
+			sizeUndoList--;
+		}
+		else {
+			JOptionPane.showMessageDialog(null, "Cannot Undo");
+		}
+		printUndo();
+		System.out.println(listDVDs);
+		System.out.println();
+
 	}
 
 	public GregorianCalendar convertStringtoGreg(String s) {
@@ -295,14 +311,15 @@ public class RentalStore extends AbstractTableModel {
 		return null;
 	}
 	
-	public void printArrayList() {
-		for (int i = 0; i < undoList.size();i++) {
-			System.out.println(i);
-			System.out.println(undoList.get(i).toString());
-			
+	public void printUndo () {
+		for (int i =0;i<sizeUndoList;i++) {
+			System.out.print(undoList[i][0] + "  " + undoList[i][1]);
+			System.out.println();
 		}
 		System.out.println();
 	}
+
+
 
 
 }

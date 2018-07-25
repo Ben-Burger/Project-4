@@ -2,7 +2,9 @@ package project4;
 
 import java.io.Serializable;
 
-public class MyDoubleLinkedList<T> implements Serializable, Cloneable {
+import project4.DNode;
+
+public class MyDoubleLinkedList<T> implements Serializable {
 
 	/** Saves a DVD object as a binary file */
 	private static final long serialVersionUID = 1L;
@@ -83,7 +85,7 @@ public class MyDoubleLinkedList<T> implements Serializable, Cloneable {
 			previousTail.setNextNode(newTail);
 			tail = newTail;
 		}
-//		System.out.println(toString());
+		//		System.out.println(toString());
 	}
 
 	/******************************************************************
@@ -95,7 +97,7 @@ public class MyDoubleLinkedList<T> implements Serializable, Cloneable {
 	public T remove (int index) {
 
 		// Removing from the front
-		if (index == 0 && top!= null) {
+		if (index == 0 && top != null) {
 
 			DNode<T> nextNode = top.getNextNode();
 
@@ -242,16 +244,16 @@ public class MyDoubleLinkedList<T> implements Serializable, Cloneable {
 		// Checks if head is the object being searched for
 		if (findNode.getData().equals(t))
 			return 0;
-		
+
 		// Checks if tail is the object being searched for
 		else if (tail.equals(t))
 			return getSize() - 1;
-		
+
 		// Checks if body has the object being searched for
 		else if (!findNode.getData().equals(t)){
-			
+
 			int searching = 1;
-			
+
 			for (int i = 0; i < getSize() - 1; i++) {
 				findNode = findNode.getNextNode();
 				searching++;
@@ -261,12 +263,51 @@ public class MyDoubleLinkedList<T> implements Serializable, Cloneable {
 		}
 		else
 			return -1;
-		
+
 		throw new Exception("How did you get here");
 	}
+
 	
-	public String toString() {
+
+	public void addBefore(int index, T data) {
+		// case 0 not list and index = 0
+		if (top == null && index == 0) {
+			DNode<T> temp = new DNode<T> (data, null, null);
+			top = temp;
+			tail = temp;
+			return;
+		}
+
+		// case 1 no list and index != 0
+		if (top == null && index != 0) {
+			throw new IllegalArgumentException();
+		}
+
+		// case 2 the list exists and index == 0 
+		if (index == 0) {
+			DNode<T> temp = new DNode<T> (data, null, top.getNextNode());
+			top = temp;
+			return;
+		}
+
+		// case 3 the list exist and index is inbounds
+		if (index > 0 && index < getSize()) {
+			DNode<T> extra = top; 
+			for (int i = 0; i < index-1; i++) {
+				extra = extra.getNextNode(); 
+			}
+			DNode<T> temp = new DNode<T> (data, extra, extra.getNextNode());
+			extra.getNextNode().setPreviousNode(temp);
+			extra.setNextNode(temp);
+			return;	
+		}
 		
+		throw new IllegalArgumentException();
+
+	}
+
+	public String toString() {
+
 		// Show the linked list forward
 		String string = "Forward: ";
 		DNode<T> currentNode = top;
@@ -274,22 +315,17 @@ public class MyDoubleLinkedList<T> implements Serializable, Cloneable {
 			string += currentNode.toString() + " ";
 			currentNode = currentNode.getNextNode();
 		}
-		
-		// Show hte linked list backward
-		string += "\nBackward: ";
-		currentNode = tail;
-		while (currentNode != null) {
-			string += currentNode.toString() + " ";
-			currentNode = currentNode.getPreviousNode();
-		}
-		
-		return string;
-		
-	}
-	
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
 
-	    return super.clone();
+				// Show the linked list backward
+				string += "\nBackward: ";
+				currentNode = tail;
+				while (currentNode != null) {
+					string += currentNode.toString() + " ";
+					currentNode = currentNode.getPreviousNode();
+				}
+
+		return string;
+
 	}
+
 }
