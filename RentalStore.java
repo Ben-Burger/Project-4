@@ -23,9 +23,12 @@ public class RentalStore extends AbstractTableModel {
 	/** Used to save the rental store as a binary file */
 	private static final long serialVersionUID = 1L;
 
-	/** the list of DVD (also Game) rentals **/
+	/** the list of DVD (also Game) rentals */
 	private MyDoubleLinkedList<DVD> listDVDs;
-	
+
+	/** Array list of MyDoubleLinked lists */
+	private ArrayList<MyDoubleLinkedList<DVD>> undoList;
+
 	/** DVD or game that is to be removed */
 	private DVD removedRow;
 
@@ -38,6 +41,18 @@ public class RentalStore extends AbstractTableModel {
 	public RentalStore() {
 		super();							// parent class's constructor
 		listDVDs = new MyDoubleLinkedList<DVD>();	// instantiating listDVDs
+		undoList = new ArrayList<MyDoubleLinkedList<DVD>>();
+		MyDoubleLinkedList<DVD> tempList;
+		try {
+			tempList = (MyDoubleLinkedList<DVD>) listDVDs.clone();
+			undoList.add(tempList);
+			
+			printArrayList();
+		} catch (CloneNotSupportedException e) {
+			System.out.println("messed up");
+			e.printStackTrace();
+		}
+		
 	}
 
 
@@ -47,7 +62,7 @@ public class RentalStore extends AbstractTableModel {
 	};
 
 
-	
+
 
 
 	/**
@@ -65,14 +80,24 @@ public class RentalStore extends AbstractTableModel {
 	public void setRemovedRow(DVD removedRow) {
 		this.removedRow = removedRow;
 	}
-	
+
 	/******************************************************************
 	 * Adds a DVD object to the LinkedList listDVDs.
 	 * @param dvd - the DVD object being added to the list
 	 *****************************************************************/
 	public void add (DVD dvd) {
 		listDVDs.add(dvd);
-		fireTableRowsInserted(getSize() - 1 , getSize() - 1);
+		MyDoubleLinkedList<DVD> tempList;
+		try {
+			tempList = (MyDoubleLinkedList<DVD>) listDVDs.clone();
+			undoList.add(tempList);
+			fireTableRowsInserted(getSize() - 1 , getSize() - 1);
+			printArrayList();
+		} catch (CloneNotSupportedException e) {
+			System.out.println("messed up");
+			e.printStackTrace();
+		}
+		
 	}
 
 
@@ -82,11 +107,12 @@ public class RentalStore extends AbstractTableModel {
 	 * @param dvd - the DVD object being removed from the list
 	 *****************************************************************/
 	public void remove (int index) {
-		removedRow = listDVDs.get(index);
-		
-		listDVDs.remove(index); 
-		fireTableDataChanged();
+		//		removedRow = listDVDs.get(index); 
 
+		listDVDs.remove(index); 
+		undoList.add(listDVDs);
+		fireTableDataChanged();
+		printArrayList();
 	}
 
 
@@ -105,9 +131,9 @@ public class RentalStore extends AbstractTableModel {
 	 * @param i - index of listDVDs
 	 * @return DVD - the DVD object at the given index
 	 *****************************************************************/
-		public DVD getElementAt(int i) {	
-			return listDVDs.get(i);
-		}
+	public DVD getElementAt(int i) {	
+		return listDVDs.get(i);
+	}
 
 
 	/******************************************************************
@@ -248,6 +274,12 @@ public class RentalStore extends AbstractTableModel {
 
 	}
 
+	public void undo () {
+		undoList.remove(undoList.size()-1);
+		listDVDs = undoList.get(undoList.size()-1);
+		fireTableDataChanged();
+	}
+
 	public GregorianCalendar convertStringtoGreg(String s) {
 		DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
 		Date date;
@@ -261,6 +293,15 @@ public class RentalStore extends AbstractTableModel {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public void printArrayList() {
+		for (int i = 0; i < undoList.size();i++) {
+			System.out.println(i);
+			System.out.println(undoList.get(i).toString());
+			
+		}
+		System.out.println();
 	}
 
 
