@@ -36,23 +36,6 @@ public class DVD implements Serializable {
 	}
 
 	/******************************************************************
-	 * Creates a DVD object with with specific parameters for bought,
-	 * dueback, title, and name
-	 * @param bought - the date on which the DVD was bought
-	 * @param dueBack - the date on which the DVD is due back
-	 * @param title - the title of the DVD 
-	 * @param name - the name of the renter renting the DVD
-	 *****************************************************************/
-	public DVD(GregorianCalendar bought, GregorianCalendar dueBack, 
-			String title, String name) {
-		super();
-		this.bought = bought;
-		this.dueBack = dueBack;
-		this.title = title;
-		this.nameOfRenter = name;
-	}
-
-	/******************************************************************
 	 * Gets the date the DVD was bought
 	 * @return bought - the date that the DVD was bought
 	 *****************************************************************/
@@ -163,6 +146,4 @@ public class DVD implements Serializable {
 				convertDateToString(bought) + "\t" + 
 				convertDateToString(dueBack);
 	}
-	
-	
 }

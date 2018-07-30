@@ -34,7 +34,7 @@ public class RentGameDialog  extends JDialog implements ActionListener{
 	private JTextField rentedOnTxt;
 
 	/** Text field for the due date of the game */
-	private JTextField DueBackTxt;
+	private JTextField dueBackTxt;
 	
 	/** combo box for the type of player for the game */
 	private JComboBox<PlayerType> typeOfPlayer;
@@ -103,14 +103,15 @@ public class RentGameDialog  extends JDialog implements ActionListener{
 		date = c.getTime();
 
 		textPanel.add(new JLabel("Due Back: "));
-		DueBackTxt = new JTextField(df.format(date), 15);
-		textPanel.add(DueBackTxt);
+		dueBackTxt = new JTextField(df.format(date), 15);
+		textPanel.add(dueBackTxt);
 
 		// JComboBox for the type of player
 		textPanel.add(new JLabel("Type of Player: "));
 		
 		
-		PlayerType[] gameNames = new PlayerType[PlayerType.values().length];
+		PlayerType[] gameNames = new PlayerType
+				[PlayerType.values().length];
 		int i = 0;
 		for (PlayerType p : PlayerType.values()) {
 			gameNames[i++] = p;
@@ -137,8 +138,6 @@ public class RentGameDialog  extends JDialog implements ActionListener{
 		setVisible(true);
 	}
 
-
-
 	@Override
 	/******************************************************************
 	 * Tells the GUI what to do when something on the 
@@ -149,6 +148,20 @@ public class RentGameDialog  extends JDialog implements ActionListener{
 
 		JButton button = (JButton) e.getSource();
 		
+		okButtonPressed(button);
+		
+		// If cancel is pushed, the dialogue box disappears
+		if (button == cancelButton) {
+			addGame = false;
+			dispose();
+		}
+	}
+
+	/******************************************************************
+	 *Sets the logic when a user presses "ok" on the dialog box
+	 * @param button- the button that checks if a user clicked
+	 *****************************************************************/
+	private void okButtonPressed(JButton button) {
 		// if OK clicked then fill the object
 		if (button == okButton) {
 			
@@ -182,12 +195,6 @@ public class RentGameDialog  extends JDialog implements ActionListener{
 						dispose();
 				}
 			}
-		}
-		
-		// If cancel is pushed, the dialogue box disappears
-		if (button == cancelButton) {
-			addGame = false;
-			dispose();
 		}
 	}
 	
@@ -245,8 +252,8 @@ public class RentGameDialog  extends JDialog implements ActionListener{
 		// Sets the date due and checks if it's a valid date
 		DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
 		try {
-			Date date = df.parse(DueBackTxt.getText());
-			String[] due = DueBackTxt.getText().split("/");
+			Date date = df.parse(dueBackTxt.getText());
+			String[] due = dueBackTxt.getText().split("/");
 
 			GregorianCalendar cal = new GregorianCalendar();
 			cal.setTime(date);

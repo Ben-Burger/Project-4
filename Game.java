@@ -23,25 +23,6 @@ public class Game extends DVD {
 	}
 	
 	/******************************************************************
-	 * Creates a game object with with specific parameters for bought,
-	 * dueback, title, name of the renter, and type of player
-	 * @param bought - the date on which the game was bought
-	 * @param dueBack - the date on which the game is due back
-	 * @param title - the title of the game
-	 * @param name - the name of the person renting the game
-	 * @param player - the type of player used to play the game 
-	 *****************************************************************/
-	public Game(GregorianCalendar bought, GregorianCalendar dueBack,
-			String title, String name, PlayerType player) {
-		super();
-		this.bought = bought;
-		this.dueBack = dueBack;
-		this.title = title;
-		this.nameOfRenter = name;
-		this.player = player;
-	}
-	
-	/******************************************************************
 	 * Returns the type of the player used for playing the game
 	 * @return player - the type of player used for playing the game
 	 *****************************************************************/

@@ -1,18 +1,13 @@
 package project4;
 
 import javax.swing.*;
-import javax.swing.table.TableColumnModel;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 
 /**********************************************************************
  * Creates the GUI for the rental store
@@ -73,22 +68,12 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 	/** Scroll pane */
 	private JScrollPane scrollList;
 
-
-//	/** List to keep track of store */
-//	private ArrayList<RentalStore> undoList;
-//	
-//	/** Row that is deleted */
-//	private DVD deletedRow;
-
 	/******************************************************************
 	 * Creates the elements of the GUI
 	 *****************************************************************/
 	public RentalStoreGUI() {
 		// Run the constructor for the JFrame constructor
 		super();
-
-//		// Creates the ArrayList for the undo button
-//		undoList = new ArrayList<RentalStore>();
 
 		//adding menu bar and menu items
 		menus = new JMenuBar();
@@ -155,273 +140,235 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 
 		Object comp = e.getSource();
 
-		openList(comp);
-
-		saveList(comp);
-
+		if (openSerItem == comp || openTextItem == comp) 
+			openList(comp);
+	
+		if (saveSerItem == comp || saveTextItem == comp) 
+			saveList(comp);
+	
 		// MenuBar option of exiting
-		if (comp == exitItem) {
+		if (comp == exitItem) 
 			System.exit(1);
-		}
 
+		// Renting a DVD or game
+		rentingDvdOrGame(comp); 
+
+		// Returns the DVD or Game
+		if (comp == returnItem) 
+			returnDvdOrGame(comp);
+
+		// Shows what items are late
+		if (comp == showLateItem) 
+			showLateItem(comp);
+		 
+		// Undoes whatever action just happened
+		if (comp == undoItem) 
+			store.undo();
+	}
+
+	/******************************************************************
+	 * Checks if the user is trying to rent a DVD or game and 
+	 * adds it to the list
+	 * @param comp - the object that checks if a user clicked
+	 *****************************************************************/
+	private void rentingDvdOrGame(Object comp) {
 		// Renting a DVD
 		if (comp == rentDVD) {
 			DVD dvd = new DVD();
 			RentDVDDialog dialog = new RentDVDDialog(this, dvd);
-			if (dialog.addDVDtoList() == true) {
-				store.add(dvd);
-
-//				// New Rental store to save place in time 
-//				RentalStore tempStore = new RentalStore();
-//
-//				for (int i = 0; i < store.getSize(); i++) 
-//					tempStore.add(store.get(i));
-//
-////				undoList.add(tempStore);
-			}
+			if (dialog.addDVDtoList() == true) 
+				store.add(dvd);			
 		}
 
 		// Renting a Game
 		if (comp == rentGame) {
 			Game game = new Game();
 			RentGameDialog dialog = new RentGameDialog(this, game);
-			if (dialog.addGametoList() == true) {
+			if (dialog.addGametoList() == true) 
 				store.add(game);
-
-//				// New Rental store to save place in time 
-//				RentalStore tempStore = new RentalStore();
-//
-//				for (int i = 0; i < store.getSize(); i++) 
-//					tempStore.add(store.get(i));
-//
-////				undoList.add(tempStore);
-			}
-		} 
-
-		// Returns the DVD or Game
-		returnDvdOrGame(comp);
-
-		// Shows what items are late
-		showLateItem(comp);
-
-		// Undoes whatever action just happened
-		if (comp == undoItem) {
-
-			
-			store.undo();
-
-//			RentalStore endStore = new RentalStore();
-//			RentalStore beforeEndStore = new RentalStore();
-//
-//			// Creates a store that is the most recent store in list
-//			endStore = undoList.get(undoList.size() - 1);
-//			
-//			// Creates a store that is one step behind the action
-//			beforeEndStore = undoList.get(undoList.size() - 2);
-//
-//			// Tests if trying to undo a rent game
-//			if (endStore.getSize() > beforeEndStore.getSize()) 
-//				store.remove(endStore.getSize() - 1);
-//			
-//			if (endStore.getSize() < beforeEndStore.getSize())
-//				store.add(deletedRow);
-//			
-//			
-//			store.fireTableDataChanged();
 		}
-
-
 	}
 
-	/**
+	/******************************************************************
 	 * Returning a DVD or game
-	 * @param comp
-	 */
+	 * @param comp - the object that checks if a user clicked
+	 *****************************************************************/
 	private void returnDvdOrGame(Object comp) {
-		if (comp == returnItem) {
 
-			int index = JListTable.getSelectedRow();
+		int index = JListTable.getSelectedRow();
 
-			try {
- 
-				if (index == -1) {
-					throw new IndexOutOfBoundsException();
-				}
-				else {
+		try {
 
-					GregorianCalendar date = new GregorianCalendar();
-					String inputDate = JOptionPane.
-							showInputDialog("Enter return date: ");
-					SimpleDateFormat df = new 
-							SimpleDateFormat("MM/dd/yyyy");
+			if (index == -1) 
+				throw new IndexOutOfBoundsException();
+			else {
 
-					Date newDate = df.parse(inputDate);
-					date.setTime(newDate);
-					DVD unit = store.get(index);
-
-					//Checks if return date is before bought date
-					if (date.compareTo(unit.getBought()) > 0) {
-						JOptionPane.showMessageDialog(null, "Thanks " + unit.getNameOfRenter() + " for returning "
-								+ unit.getTitle() + ", you owe: " + unit.getCost(date) + " dollars");
-
-
-						
-						store.remove(JListTable.getSelectedRow());
-						
-//						deletedRow = store.getRemovedRow();
-//
-//						// New Rental store to save place in time 
-//						RentalStore tempStore = new RentalStore();
-//
-//						for (int i = 0; i < store.getSize(); i++) 
-//							tempStore.add(store.get(i));
-//
-//						undoList.add(tempStore);
-					}
-					else
-						throw new Exception();
-				}
-			}
-			catch (IndexOutOfBoundsException ie) {
-				JOptionPane.showMessageDialog(null, "Please select" + 
-						" an item");
-			}
-			catch (ParseException pe){
-				JOptionPane.showMessageDialog(null, "Please enter" + 
-						" valid return date format");
-			}
-			catch (Exception ex ) {
-				JOptionPane.showMessageDialog(null, "Please enter" + 
-						" something that works for the return date");
-			}			
-		}
-	}
-
-	/**
-	 * Opening a serializable file 
-	 * @param comp
-	 */
-	private void openList(Object comp) {
-		if (openSerItem == comp || openTextItem == comp) {
-			JFileChooser chooser = new JFileChooser();
-			int status = chooser.showOpenDialog(null);
-			if (status == JFileChooser.APPROVE_OPTION) {
-				String filename = chooser.getSelectedFile().
-						getAbsolutePath();
-				if (openSerItem == comp)
-					store.loadFromSerializable(filename);
-
-				if (openTextItem == comp) {
-					store.loadFromText(filename);
-				}
-
-//				// New Rental store to save place in time 
-//				RentalStore tempStore = new RentalStore();
-//
-//				for (int i = 0; i < store.getSize(); i++) 
-//					tempStore.add(store.get(i));
-//
-//				undoList.add(tempStore);
-			}
-		}
-	}
-
-
-
-	/**
-	 * Saving a serializable file
-	 * @param comp
-	 */
-	private void saveList(Object comp) {
-		if (saveSerItem == comp || saveTextItem == comp) {
-			JFileChooser chooser = new JFileChooser();
-			int status = chooser.showSaveDialog(null);
-			if (status == JFileChooser.APPROVE_OPTION) {
-				String filename = chooser.getSelectedFile().
-						getAbsolutePath();
-				if (saveSerItem == comp)
-					store.saveAsSerializable(filename);
-				if (saveTextItem == comp) 
-					store.saveAsText(filename);
-
-//				// New Rental store to save place in time 
-//				RentalStore tempStore = new RentalStore();
-//
-//				for (int i = 0; i < store.getSize(); i++) 
-//					tempStore.add(store.get(i));
-//
-//				undoList.add(tempStore);
-			}
-		}
-	}
-
-
-
-	/**
-	 * Checks what items will be late at specific date
-	 * @param comp
-	 */
-	private void showLateItem(Object comp) {
-		if (comp == showLateItem) {
-
-
-			try {
 				GregorianCalendar date = new GregorianCalendar();
 				String inputDate = JOptionPane.
-						showInputDialog("Enter date: ");
-				SimpleDateFormat df =
-						new SimpleDateFormat("MM/dd/yyyy");
+						showInputDialog("Enter return date: ");
+				SimpleDateFormat df = new 
+						SimpleDateFormat("MM/dd/yyyy");
 
 				Date newDate = df.parse(inputDate);
-				date.setTime(newDate);
+				
+				String[] str = inputDate.split("/");
 
-				// Makes sure that dates are formatted correctly
-				String[] late = inputDate.split("/");
+				GregorianCalendar cal = new GregorianCalendar();
+				cal.setTime(newDate);
 
-				DVD lateDVD = new DVD();
+				String[] greg = convertDateToString(cal).split("/");
 
-				String[] greg = lateDVD.convertDateToString(date).split("/");
-
-				if (!late[0].equals(greg[0]) || !late[2].equals(greg[2]))
+				if (!str[0].equals(greg[0]) || !str[2].equals(greg[2]))
 					throw new Exception();
 
-				int lateListIndex = 0;
-				String[] lateList = new String[store.getSize()];
+				DVD unit = store.get(index);
 
-
-				// Compares dates to check how late an item would be
-				for (int i = 0; i < store.getSize(); i++) {
-					long milliRental =  store.get(i).getDueBack().
-							getTimeInMillis();
-					long daysRental = milliRental / 
-							(24 * 60 * 60 * 1000);
-					long milliDate =  date.
-							getTimeInMillis();
-					long daysDate = milliDate / (24 * 60 * 60 * 1000);
-					if (daysDate - daysRental > 0) {
-						lateList [lateListIndex] = store.get(i).
-								toString() + ",  Days late: " +
-								(daysDate - daysRental);
-						lateListIndex++;
-					}
+				//Checks if return date is before bought date
+				if (cal.compareTo(unit.getBought()) >= 0) {
+					JOptionPane.showMessageDialog(null, "Thanks "
+				+ unit.getNameOfRenter() + " for returning "
+							+ unit.getTitle() + ", you owe: " 
+				+ unit.getCost(cal) + " dollars");
+					store.remove(index);
 				}
-				if (lateList.length > 0)
-					JOptionPane.showMessageDialog(null, lateList,
-							"Late List", JOptionPane.
-							INFORMATION_MESSAGE);
-				else
-					JOptionPane.showMessageDialog(null, 
-							"There are no late rentals");
+				else 
+					throw new Exception();
 			}
-			catch (ParseException pe) {
-				JOptionPane.showMessageDialog(null, "Please enter" + 
-						" valid date");
-			}
-			catch (Exception ex ) {
-				JOptionPane.showMessageDialog(null, "Please enter" + 
-						" something that works for the return date");
-			}			
 		}
+		catch (IndexOutOfBoundsException ie) {
+			JOptionPane.showMessageDialog(null, "Please select" + 
+					" an item");
+		}
+		catch (ParseException pe){
+			JOptionPane.showMessageDialog(null, "Please enter" + 
+					" valid return date format");
+		}
+		catch (Exception ex ) {
+			JOptionPane.showMessageDialog(null, "Please enter" + 
+					" something that works for the return date");
+		}		
+	}
+
+	/******************************************************************
+	 * Opening a serializable file 
+	 * @param comp - the object that checks if a user clicked
+	 *****************************************************************/
+	private void openList(Object comp) {
+
+		JFileChooser chooser = new JFileChooser();
+		int status = chooser.showOpenDialog(null);
+		if (status == JFileChooser.APPROVE_OPTION) {
+			String filename = chooser.getSelectedFile().
+					getAbsolutePath();
+			if (openSerItem == comp)
+				store.loadFromSerializable(filename);
+
+			if (openTextItem == comp) 
+				store.loadFromText(filename);
+		}
+	}
+
+
+
+	/******************************************************************
+	 * Saving a serializable file
+	 * @param comp - the object that checks if a user clicked
+	 *****************************************************************/
+	private void saveList(Object comp) {
+
+		JFileChooser chooser = new JFileChooser();
+		int status = chooser.showSaveDialog(null);
+		if (status == JFileChooser.APPROVE_OPTION) {
+			String filename = chooser.getSelectedFile().
+					getAbsolutePath();
+			if (saveSerItem == comp)
+				store.saveAsSerializable(filename);
+			if (saveTextItem == comp) 
+				store.saveAsText(filename);
+		}
+
+	}
+
+
+
+	/******************************************************************
+	 * Checks what items will be late at specific date
+	 * @param comp - the object that checks if a user clicked
+	 *****************************************************************/
+	private void showLateItem(Object comp) {
+
+		try {
+			GregorianCalendar date = new GregorianCalendar();
+			String inputDate = JOptionPane.
+					showInputDialog("Enter date: ");
+			SimpleDateFormat df =
+					new SimpleDateFormat("MM/dd/yyyy");
+
+			Date newDate = df.parse(inputDate);
+			date.setTime(newDate);
+
+			// Makes sure that dates are formatted correctly
+			String[] late = inputDate.split("/");
+
+			DVD lateDVD = new DVD();
+
+			String[] greg = lateDVD.convertDateToString(date).
+					split("/");
+
+			if (!late[0].equals(greg[0]) || !late[2].equals(greg[2]))
+				throw new Exception();
+
+			int lateListIndex = 0;
+			String[] lateList = new String[store.getSize()];
+
+
+			// Compares dates to check how late an item would be
+			for (int i = 0; i < store.getSize(); i++) {
+				long milliRental =  store.get(i).getDueBack().
+						getTimeInMillis();
+				long daysRental = milliRental / 
+						(24 * 60 * 60 * 1000);
+				long milliDate =  date.
+						getTimeInMillis();
+				long daysDate = milliDate / (24 * 60 * 60 * 1000);
+				if (daysDate - daysRental > 0) {
+					lateList [lateListIndex] = store.get(i).
+							toString() + ",  Days late: " +
+							(daysDate - daysRental);
+					lateListIndex++;
+				}
+			}
+			if (lateList.length > 0)
+				JOptionPane.showMessageDialog(null, lateList,
+						"Late List", JOptionPane.
+						INFORMATION_MESSAGE);
+			else
+				JOptionPane.showMessageDialog(null, 
+						"There are no late rentals");
+		}
+		catch (ParseException pe) {
+			JOptionPane.showMessageDialog(null, "Please enter" + 
+					" valid date");
+		}
+		catch (Exception ex ) {
+			JOptionPane.showMessageDialog(null, "Please enter" + 
+					" something that works for the return date");
+		}			
+	}
+	
+	/******************************************************************
+	 * Converts a Gregorian date to a String
+	 * @param gDate - A Gregorian calendar date to convert to a string
+	 * @return string of the Gregorian calendar date
+	 *****************************************************************/
+	public String convertDateToString(GregorianCalendar gDate) {
+		DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+
+		Date date = gDate.getTime();
+
+		String dateString = df.format(date);
+
+		return dateString;
 	}
 
 	/******************************************************************
@@ -431,5 +378,4 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 	public static void main(String[] args) {
 		new RentalStoreGUI();
 	}
-
 }

@@ -26,14 +26,20 @@ public class RentalStore extends AbstractTableModel {
 	/** the list of DVD (also Game) rentals */
 	private MyDoubleLinkedList<DVD> listDVDs;
 
-	/** Array list of MyDoubleLinked lists */
-	private ArrayList<MyDoubleLinkedList<DVD>> undoList;
+	/** the list that keeps track of each action */
+	private Object[][] undoList;
 
-	/** DVD or game that is to be removed */
-	private DVD removedRow;
+	/** Array to keep track of the last removed index */
+	private int[] indexLastRemove;
+
+	/** Integer to keep track of the size of the undo list */
+	private int sizeUndoList;
+
+	/** Integer to keep track of the number of undos */
+	private int numUndos;
 	
-	/** Index of removed DVD */
-	private int removedIndex;
+	/** Array of Strings for the headers of the JTable */
+	private String[] columns;
 
 
 	/******************************************************************
@@ -42,30 +48,33 @@ public class RentalStore extends AbstractTableModel {
 	 * objects.
 	 *****************************************************************/
 	public RentalStore() {
-		super();							// parent class's constructor
-		listDVDs = new MyDoubleLinkedList<DVD>();	// instantiating listDVDs
-		undoList = new ArrayList<MyDoubleLinkedList<DVD>>();
-		MyDoubleLinkedList<DVD> tempList;
-		try {
-			tempList = (MyDoubleLinkedList<DVD>) listDVDs.clone();
-			undoList.add(tempList);
-			
-			printArrayList();
-		} catch (CloneNotSupportedException e) {
-			System.out.println("messed up");
-			e.printStackTrace();
-		}
+		super();									
 		
+		// instantiating listDVDs
+		listDVDs = new MyDoubleLinkedList<DVD>();	
+		fireTableDataChanged();
+		
+		// headers for the table
+		columns = new String[] {
+				"Name", "Title", "Rented On", "Due Back", "Player Type"
+		};
+		
+		undoList = new Object[100][2];
+		
+		indexLastRemove = new int[100];
+		
+		sizeUndoList = 0;
+		
+		numUndos = 0;
 	}
 
-	// headers for the table
-	String[] columns = new String[] {
-			"Name", "Title", "Rented On", "Due Back", "Player Type"
-	};
 
-	/**
-	 * Comment later
-	 */
+	/******************************************************************
+	 * Gets the name of the column
+	 * @param col - integer that represents each column in the JTable
+	 * @return columns[col] - String representation 
+	 * of the name of the specific column
+	 *****************************************************************/
 	public String getColumnName(int col) {
 		return columns[col]; 
 	}
@@ -76,42 +85,28 @@ public class RentalStore extends AbstractTableModel {
 	 *****************************************************************/
 	public void add (DVD dvd) {
 		listDVDs.add(dvd);
-		MyDoubleLinkedList<DVD> tempList;
-		try {
-			tempList = (MyDoubleLinkedList<DVD>) listDVDs.clone();
-			undoList.add(tempList);
-			fireTableRowsInserted(getSize() - 1 , getSize() - 1);
-			printArrayList();
-		} catch (CloneNotSupportedException e) {
-			System.out.println("messed up");
-			e.printStackTrace();
-		}
-		
-	}
-	
-	/******************************************************************
-	 * Adds a DVD object to the LinkedList listDVDs
-	 * @param dvd - the DVD object being added to the list
-	 *****************************************************************/
-	public void addAfter (DVD dvd, int index) {
-		listDVDs.addAfter(dvd, index);
-		fireTableRowsInserted( 0 , getSize() - 1);
-	}
+		fireTableDataChanged();
 
-
+		// Adds the action of adding a DVD to the undoList
+		undoList[sizeUndoList][0] = dvd;
+		undoList[sizeUndoList][1] = "add";
+		sizeUndoList++;
+	}
 
 	/******************************************************************
 	 * Removes a DVD object from the LinkedList listDVDs.
 	 * @param dvd - the DVD object being removed from the list
 	 *****************************************************************/
 	public void remove (int index) {
-
-		//		removedRow = listDVDs.get(index); 
-
+		DVD dvd = listDVDs.get(index);
 		listDVDs.remove(index); 
-		undoList.add(listDVDs);
 		fireTableDataChanged();
-		printArrayList();
+
+		// Adds the action of removing a DVD to the undoList
+		undoList[sizeUndoList][0] = dvd;
+		undoList[sizeUndoList][1] = "remove";
+		sizeUndoList++;
+		indexLastRemove[numUndos++] = index;
 	}
 
 
@@ -172,13 +167,14 @@ public class RentalStore extends AbstractTableModel {
 			ObjectInputStream is = new ObjectInputStream(fis);
 
 			listDVDs = (MyDoubleLinkedList<DVD>) is.readObject();
-			fireTableDataChanged();
 			is.close();
+			sizeUndoList = 0;
+			numUndos = 0;
+			fireTableDataChanged();
 		}
 		catch (Exception ex) {
 			JOptionPane.showMessageDialog(null,"Error in loading "
 					+ "rental list");
-			ex.printStackTrace();
 		}
 	}
 
@@ -211,45 +207,73 @@ public class RentalStore extends AbstractTableModel {
 			listDVDs = new MyDoubleLinkedList<DVD>();
 			Scanner sc = new Scanner (new File(filename));
 			while (sc.hasNextLine()) {
-				String[] line = sc.nextLine().split("\t");
-				if (line.length == 4) {
-					DVD dvd = new DVD();
-					dvd.setNameOfRenter(line[0]);
-					dvd.setTitle(line[1]);
-					dvd.setBought(convertStringtoGreg(line[2]));
-					dvd.setDueBack(convertStringtoGreg(line[3]));
-					listDVDs.add(dvd);
-				}
-				if (line.length == 5) {
-					Game game = new Game();
-					game.setNameOfRenter(line[0]);
-					game.setTitle(line[1]);
-					game.setBought(convertStringtoGreg(line[2]));
-					game.setDueBack(convertStringtoGreg(line[3]));
-					game.setPlayer(PlayerType.valueOf(line[4]));
-					listDVDs.add(game);
-				}
+				checkSaveFile(sc);
 			}
 			sc.close();
+			sizeUndoList = 0;
+			numUndos = 0;
 			fireTableDataChanged();
 		}
 		catch (Exception ex) {
 			JOptionPane.showMessageDialog(null,"Error in loading "
 					+ "rental list");
-			ex.printStackTrace();
 		}
-
 	}
 
 
+	/******************************************************************
+	 * Checks if the save file being loaded in if each line contains 
+	 * a DVD or a game
+	 * @param sc - the Scanner that is scanning each line
+	 *****************************************************************/
+	private void checkSaveFile(Scanner sc) {
+		String[] line = sc.nextLine().split("\t");
+		
+		// Checks if save file is a DVD 
+		if (line.length == 4) {
+			DVD dvd = new DVD();
+			dvd.setNameOfRenter(line[0]);
+			dvd.setTitle(line[1]);
+			dvd.setBought(convertStringtoGreg(line[2]));
+			dvd.setDueBack(convertStringtoGreg(line[3]));
+			listDVDs.add(dvd);
+		}
+		
+		// Checks if save file is a DVD
+		if (line.length == 5) {
+			Game game = new Game();
+			game.setNameOfRenter(line[0]);
+			game.setTitle(line[1]);
+			game.setBought(convertStringtoGreg(line[2]));
+			game.setDueBack(convertStringtoGreg(line[3]));
+			game.setPlayer(PlayerType.valueOf(line[4]));
+			listDVDs.add(game);
+		}
+	}
+
+	/******************************************************************
+	 * Gets the number of columns in the JTable - which is 5
+	 * @return int 5 for the amount of columns in the JTable
+	 *****************************************************************/
 	public int getColumnCount() {
 		return 5;
 	}
 
+	/******************************************************************
+	 * Gets the number of rows in the JTable
+	 * @return int of the amount of DVDs or games in the list
+	 *****************************************************************/
 	public int getRowCount() {
 		return listDVDs.getSize();
 	}
 
+	/******************************************************************
+	 * Gets the object in the list at the specified row and column
+	 * @param rowIndex - integer for the row the user wants to get
+	 * @param colIndex - integer for the col the user wants to get
+	 * @return DVD or game object, depending on what is at the 
+	 * specified place on the JTable
+	 *****************************************************************/
 	public Object getValueAt (int rowIndex, int colIndex) {
 		DVD dvd = listDVDs.get(rowIndex);
 
@@ -269,16 +293,71 @@ public class RentalStore extends AbstractTableModel {
 				return ((Game) dvd).getPlayer();
 
 		return null;
-
-
 	}
 
+	/******************************************************************
+	 * Sets what happens when the user wants to undo an action
+	 *****************************************************************/
 	public void undo () {
-		undoList.remove(undoList.size()-1);
-		listDVDs = undoList.get(undoList.size()-1);
-		fireTableDataChanged();
+		//	printUndo();
+		
+		// Checks if there is anything to undo
+		if (sizeUndoList > 0) {
+			undoRenting();
+			undoReturning();
+			sizeUndoList--;
+		}
+		else {
+			JOptionPane.showMessageDialog(null, "Cannot Undo");
+		}
+//		printUndo();
 	}
 
+	/******************************************************************
+	 * Allows the user to undo returning a Game or DVD
+	 *****************************************************************/
+	private void undoReturning() {
+		
+		// Checks if most recent action was returning
+		if (undoList[sizeUndoList-1][1].equals("remove")) {
+
+			// if returned first element in the list
+			if (indexLastRemove[numUndos - 1] == 0)
+				listDVDs.addFirst((DVD) undoList
+						[sizeUndoList - 1][0]);
+
+			// if returned the last element in the list
+			else if (indexLastRemove[numUndos-1] == 
+					listDVDs.getSize())
+				listDVDs.add((DVD) undoList[sizeUndoList-1][0]);
+
+			// if returned any middle element in the list
+			else 
+				listDVDs.addBefore(indexLastRemove[numUndos-1],
+						(DVD) undoList[sizeUndoList-1][0]);
+			numUndos--;
+			fireTableDataChanged();
+		}
+	}
+
+
+	/******************************************************************
+	 * Allows the user to undo renting a Game or DVD
+	 *****************************************************************/
+	private void undoRenting() {
+		
+		// Checks if most recent action was renting
+		if (undoList[sizeUndoList-1][1].equals("add")) {
+			listDVDs.remove(listDVDs.getSize()-1); 
+			fireTableDataChanged();
+		}
+	}
+
+	/******************************************************************
+	 * Converts a string to a Gregorian calendar
+	 * @param s - the string that needs to be a gregorian calendar
+	 * @return A gregorian calendar object that was a string
+	 *****************************************************************/
 	public GregorianCalendar convertStringtoGreg(String s) {
 		DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
 		Date date;
@@ -288,20 +367,19 @@ public class RentalStore extends AbstractTableModel {
 			cal.setTime(date);
 			return cal;
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Cannot convert");
 		}
 		return null;
 	}
-	
-	public void printArrayList() {
-		for (int i = 0; i < undoList.size();i++) {
-			System.out.println(i);
-			System.out.println(undoList.get(i).toString());
-			
+
+	/******************************************************************
+	 * Prints what was undone to help visualization
+	 *****************************************************************/
+	public void printUndo () {
+		for (int i =0; i<sizeUndoList; i++) {
+			System.out.print(undoList[i][0] + "  " + undoList[i][1]);
+			System.out.println();
 		}
 		System.out.println();
 	}
-
-
 }

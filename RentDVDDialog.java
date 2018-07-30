@@ -33,7 +33,7 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 	private JTextField rentedOnTxt;
 
 	/** Text field for the due date of the DVD */
-	private JTextField DueBackTxt;
+	private JTextField dueBackTxt;
 
 	/** JButton for the Ok button on the dialog screen */
 	private JButton okButton;
@@ -99,8 +99,8 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 		date = c.getTime();
 
 		textPanel.add(new JLabel("Due Back: "));
-		DueBackTxt = new JTextField(df.format(date), 15);
-		textPanel.add(DueBackTxt);
+		dueBackTxt = new JTextField(df.format(date), 15);
+		textPanel.add(dueBackTxt);
 
 		getContentPane().add(textPanel, BorderLayout.CENTER);
 
@@ -127,12 +127,25 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 
 		JButton button = (JButton) e.getSource();
 
+		okButtonPressed(button);
+		
+		// If cancel is pushed, the dialogue box disappears
+		if (button == cancelButton) {
+			addDVD = false;
+			dispose();
+		}
+	}
+
+	/******************************************************************
+	 * Sets the logic when a user presses "ok" on the dialog box
+	 * @param button- the button that checks if a user clicked
+	 *****************************************************************/
+	private void okButtonPressed(JButton button) {
 		// if OK clicked then fill the object
 		if (button == okButton) {
 			
 			// save the information in the object
 			closeStatus = true;
-			
 			addDVD = true;
 		
 			// Sets DVD buyer's name
@@ -140,7 +153,6 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 
 			// Sets the DVD's title
 			unit.setTitle(titleTxt.getText());
-
 
 			// Sets the DVD's date bought
 			boolean goodBoughtDate = setsDvdDateBought();
@@ -154,12 +166,6 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 				if (goodReturnDate == true) 
 					dispose();
 			}
-		}
-		
-		// If cancel is pushed, the dialogue box disappears
-		if (button == cancelButton) {
-			addDVD = false;
-			dispose();
 		}
 	}
 
@@ -185,7 +191,6 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 
 			if (!buy[0].equals(greg[0]) || !buy[2].equals(greg[2]))
 				throw new Exception();
-
 
 			unit.setBought(cal);
 		}
@@ -218,8 +223,8 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 		// Sets the date due and checks if it's a valid date
 		DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
 		try {
-			Date date = df.parse(DueBackTxt.getText());
-			String[] due = DueBackTxt.getText().split("/");
+			Date date = df.parse(dueBackTxt.getText());
+			String[] due = dueBackTxt.getText().split("/");
 
 			GregorianCalendar cal = new GregorianCalendar();
 			cal.setTime(date);
@@ -266,5 +271,4 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 	public boolean addDVDtoList () {
 		return addDVD;
 	}
-
 }
