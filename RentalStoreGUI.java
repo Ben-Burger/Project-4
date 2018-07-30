@@ -167,7 +167,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 	}
 
 	/******************************************************************
-	 * Checks if the user is trying to rent a DVD or game and 
+	 * Checks if the user is trying to rent a DVD or game and  
 	 * adds it to the list
 	 * @param comp - the object that checks if a user clicked
 	 *****************************************************************/
@@ -179,6 +179,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 			if (dialog.addDVDtoList() == true) 
 				store.add(dvd);			
 		}
+		
+		// hi ben
 
 		// Renting a Game
 		if (comp == rentGame) {
